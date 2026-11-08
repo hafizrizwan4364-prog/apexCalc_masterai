@@ -1,0 +1,2518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ApexCalc Ai — Enterprise Master Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.all.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root {
+  --b1: #08030f; --b2: #240a42; --a: #e2d4ff; --c: #8b5cf6; --d: #fbbf24; --k-bg: #130a21;
+  --kr: 16px; --kc: none; --kf: 'Manrope', system-ui, sans-serif; --dr: 24px;
+  color-scheme: dark; box-sizing: border-box;
+}
+*, ::before, ::after { box-sizing: inherit; }
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: var(--kf); background: radial-gradient(120% 80% at 50% -10%, var(--b2), var(--b1) 70%), var(--b1); color: #f8f5ff; user-select: none; -webkit-tap-highlight-color: transparent; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--d); outline-offset: 2px; }
+.hid { display: none !important; }
+
+.gl { 
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)); 
+  border: 1px solid color-mix(in srgb, var(--a) 22%, transparent); 
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+  border-radius: var(--dr); 
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+#app { max-width: 520px; margin: auto; height: 100%; display: flex; flex-direction: column; padding: 10px 12px 8px; gap: 8px; position: relative; z-index: 1; }
+
+.brand { font: 700 26px 'Cormorant Garamond', serif; letter-spacing: .5px; line-height: 1; background: linear-gradient(135deg, #ffffff 20%, var(--a) 60%, var(--d) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.sub { font-size: 11px; opacity: .8; margin-top: 2px; font-weight: 500; color: var(--a); }
+
+.ai-btn { 
+  position: relative; overflow: hidden; padding: 7px 14px; border-radius: 999px; font-weight: 800; font-size: 12px; 
+  background: linear-gradient(135deg, var(--c), var(--d)); color: #000; 
+  box-shadow: 0 0 18px color-mix(in srgb, var(--c) 50%, transparent), 0 4px 12px rgba(0,0,0,0.4); 
+  border: 1px solid rgba(255,255,255,0.4); transition: transform .15s, box-shadow .2s; 
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.ai-btn:active { transform: scale(.94); }
+
+.help-btn {
+  padding: 7px 12px; border-radius: 999px; font-weight: 700; font-size: 12px;
+  background: rgba(251, 191, 36, 0.15); color: var(--d);
+  border: 1px solid color-mix(in srgb, var(--d) 40%, transparent);
+  display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;
+}
+.help-btn:active { transform: scale(.94); background: var(--d); color: #000; }
+
+.dots { width: 34px; height: 34px; border-radius: 999px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--a) 35%, transparent); background: color-mix(in srgb, var(--a) 12%, transparent); backdrop-filter: blur(8px); }
+
+.menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 50; min-width: 220px; padding: 8px; border-radius: 20px; background: color-mix(in srgb, var(--b1) 96%, transparent); backdrop-filter: blur(20px); box-shadow: 0 20px 50px rgba(0,0,0,0.85); border: 1px solid color-mix(in srgb, var(--a) 30%, transparent); }
+.mi { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 10px 12px; border-radius: 12px; font-weight: 600; font-size: 13px; color: #f8f5ff; }
+.mi:hover, .mi:focus-visible { background: color-mix(in srgb, var(--a) 20%, transparent); outline: none; }
+
+.nav-categories { display: flex; gap: 4px; border-bottom: 1px solid color-mix(in srgb, var(--a) 15%, transparent); padding-bottom: 4px; flex: none; overflow-x: auto; scrollbar-width: none; }
+.cat-btn { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; opacity: 0.65; white-space: nowrap; transition: all 0.2s; }
+.cat-btn.on { opacity: 1; color: var(--d); background: rgba(255,255,255,0.06); }
+
+.tabs { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; flex: none; padding: 2px 0; }
+.tb { padding: 7px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap; border: 1px solid color-mix(in srgb, var(--a) 25%, transparent); opacity: .75; background: rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s; }
+.tb.on { background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 70%, #000)); color: #fff; opacity: 1; box-shadow: 0 0 16px var(--c); border-color: var(--d); }
+
+.panel { flex: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; display: flex; flex-direction: column; gap: 10px; padding-bottom: 6px; min-height: 0; }
+
+#dw { padding: 12px 16px; flex: none; border-radius: var(--dr); background: linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.3)); border: 1px solid color-mix(in srgb, var(--a) 30%, transparent); box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.3); }
+#st { font-size: 11px; opacity: .85; height: 16px; display: flex; justify-content: space-between; color: var(--a); font-weight: 600; }
+#disp { font: 600 32px var(--kf); text-align: right; white-space: nowrap; overflow-x: auto; scrollbar-width: none; min-height: 46px; line-height: 46px; cursor: text; letter-spacing: 0.5px; }
+.cr { display: inline-block; width: 2.5px; height: 1.05em; vertical-align: -.15em; margin: 0 -1px; background: var(--d); box-shadow: 0 0 8px var(--d); animation: bl 1s steps(1) infinite; }
+@keyframes bl { 50% { opacity: 0; } }
+#res { text-align: right; color: var(--d); font-size: 22px; font-weight: 800; min-height: 28px; text-shadow: 0 0 12px color-mix(in srgb, var(--d) 40%, transparent); }
+
+.seg { display: inline-flex; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--a) 30%, transparent); overflow: hidden; font-size: 11.5px; font-weight: 700; background: rgba(0,0,0,0.3); }
+.seg button { padding: 5px 12px; opacity: .7; display: inline-flex; align-items: center; gap: 4px; } .seg button.on { background: var(--c); color: #fff; opacity: 1; box-shadow: 0 0 12px var(--c); }
+
+.kp { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; transition: all 0.25s ease-in-out; }
+.kp.sci-mode { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+
+.k { 
+  height: clamp(44px, 6.5vh, 54px); border-radius: var(--kr); font-family: var(--kf); font-size: 17px; font-weight: 700; 
+  background: linear-gradient(180deg, color-mix(in srgb, var(--a) 16%, #120824), var(--k-bg)); 
+  border: 1px solid color-mix(in srgb, var(--a) 22%, transparent); 
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 6px 14px rgba(0,0,0,0.45); 
+  transition: transform .08s, box-shadow .15s, border-color .15s; 
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.k::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 60%); pointer-events: none; }
+.k.fn { font-size: 13px; color: var(--a); background: linear-gradient(180deg, color-mix(in srgb, var(--a) 22%, #08030f), var(--k-bg)); } 
+.k.op { background: linear-gradient(180deg, color-mix(in srgb, var(--c) 55%, #000), color-mix(in srgb, var(--c) 35%, #000)); font-size: 20px; color: #fff; border-color: color-mix(in srgb, var(--c) 50%, transparent); }
+.k.eq { 
+  background: linear-gradient(135deg, #000 0%, var(--c) 50%, var(--d) 100%); 
+  color: #fff; font-weight: 800; font-size: 22px; text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  border: 1px solid var(--d); box-shadow: 0 0 20px color-mix(in srgb, var(--d) 40%, transparent), inset 0 1px 1px rgba(255,255,255,0.5);
+}
+
+.k.soft-toggle {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--d) 25%, #180930), var(--k-bg));
+  border: 1px solid color-mix(in srgb, var(--d) 50%, transparent);
+  color: var(--d); font-weight: 800; font-size: 13px;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--d) 25%, transparent);
+}
+
+.k:active, .k.pr { transform: scale(.94); box-shadow: 0 0 18px var(--c); border-color: var(--d); }
+
+.in { width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 14px; background: rgba(0,0,0,0.4); border: 1px solid color-mix(in srgb, var(--a) 30%, transparent); outline: 0; user-select: text; color: #fff; font-size: 13px; }
+
+.custom-select-trigger {
+  width: 100%; padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.06); 
+  border: 1px solid color-mix(in srgb, var(--a) 30%, transparent); color: #fff; font-size: 13px; font-weight: 600;
+  display: flex; justify-between; align-items: center; cursor: pointer; backdrop-filter: blur(12px);
+  transition: all 0.2s;
+}
+.custom-select-trigger:active { transform: scale(0.98); border-color: var(--d); }
+
+.custom-select-modal {
+  position: fixed; inset: 0; z-index: 100; background: rgba(8, 3, 15, 0.65); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.custom-select-box {
+  width: min(92vw, 420px); border-radius: 24px; padding: 14px;
+  background: linear-gradient(145deg, rgba(30, 12, 55, 0.85), rgba(12, 4, 25, 0.9));
+  border: 1px solid color-mix(in srgb, var(--d) 40%, transparent);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px color-mix(in srgb, var(--c) 30%, transparent);
+  display: flex; flex-direction: column; gap: 8px; max-height: 80vh; overflow-y: auto; scrollbar-width: none;
+  animation: popUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes popUp { from { opacity: 0; transform: scale(0.92) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+.custom-option {
+  padding: 12px 16px; border-radius: 14px; font-size: 13.5px; font-weight: 600; color: #f8f5ff;
+  display: flex; justify-between; align-items: center; cursor: pointer; transition: all 0.15s;
+  background: rgba(255, 255, 255, 0.03); border: 1px solid transparent;
+}
+.custom-option:hover, .custom-option.selected {
+  background: color-mix(in srgb, var(--c) 25%, transparent); border-color: var(--d); color: #fff;
+}
+.custom-option .radio-dot {
+  width: 18px; height: 18px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--a) 40%, transparent);
+  display: grid; place-items: center; flex: none; transition: all 0.2s;
+}
+.custom-option.selected .radio-dot {
+  border-color: var(--d); background: var(--d); box-shadow: 0 0 10px var(--d);
+}
+.custom-option.selected .radio-dot::after {
+  content: ''; width: 6px; height: 6px; border-radius: 50%; background: #000;
+}
+
+#ai { position: fixed; inset: 0; z-index: 80; background: rgba(8,3,15,0.95); backdrop-filter: blur(24px); display: flex; flex-direction: column; }
+#ai > div { max-width: 520px; margin: auto; height: 100%; width: 100%; display: flex; flex-direction: column; padding: 12px 14px; gap: 10px; }
+#chat { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; user-select: text; min-height: 0; }
+.ub { align-self: flex-end; max-width: 85%; padding: 12px 16px; border-radius: 20px 20px 4px 20px; background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 80%, #000)); color: #fff; font-weight: 600; word-break: break-word; white-space: pre-wrap; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.ub img { display: block; max-width: 180px; border-radius: 12px; margin-top: 6px; }
+.ans { padding: 14px; animation: pop .35s; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; align-self: flex-start; max-width: 92%; }
+.ans.typing { opacity: .6; }
+
+.ai-header-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: rgba(251,191,36,0.1); border: 1px solid color-mix(in srgb, var(--d) 30%, transparent); color: var(--d); font-size: 11px; font-weight: 700; }
+.ai-chip { padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.06); border: 1px solid color-mix(in srgb, var(--a) 20%, transparent); white-space: nowrap; cursor: pointer; transition: all 0.2s; }
+.ai-chip:hover { background: color-mix(in srgb, var(--c) 25%, transparent); border-color: var(--d); }
+
+#wel { position: fixed; inset: 0; z-index: 90; background: rgba(5,2,10,.95); backdrop-filter: blur(24px); display: flex; align-items: center; justify-content: center; }
+#wc { width: min(92vw, 440px); padding: 28px 22px; text-align: center; display: flex; flex-direction: column; gap: 16px; animation: pop .4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid color-mix(in srgb, var(--d) 40%, transparent); box-shadow: 0 0 40px rgba(139,92,246,0.3); }
+@keyframes pop { from { opacity: 0; transform: scale(.92) translateY(12px); } }
+
+.thread-card { padding: 18px; border-radius: 20px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); border: 1px solid color-mix(in srgb, var(--d) 35%, transparent); text-align: center; animation: fadeInRight 0.4s ease-out forwards; }
+@keyframes fadeInRight { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--a); opacity: .3; display: inline-block; margin: 0 4px; transition: all .3s; }
+.dot.on { opacity: 1; width: 24px; border-radius: 10px; background: var(--d); box-shadow: 0 0 12px var(--d); }
+.pb { padding: 11px 24px; border-radius: 999px; font-weight: 800; background: linear-gradient(135deg, var(--c), var(--d)); color: #000; font-size: 13.5px; box-shadow: 0 4px 20px color-mix(in srgb, var(--c) 40%, transparent); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+
+#fx { position: fixed; inset: 0; z-index: 99; pointer-events: none; }
+.ic { width: 38px; height: 38px; border-radius: 14px; flex: none; display: grid; place-items: center; background: color-mix(in srgb, var(--a) 14%, transparent); cursor: pointer; border: 1px solid color-mix(in srgb, var(--a) 25%, transparent); }
+.ic.on { background: var(--c); color: #fff; box-shadow: 0 0 16px var(--c); }
+.ic.mic-on { background: #ef4444; color: #fff; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 70%{box-shadow:0 0 0 10px rgba(239,68,68,0)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0)} }
+
+.gcanvas { width: 100%; height: clamp(220px, 35vh, 320px); display: block; border-radius: 16px; touch-action: none; cursor: crosshair; }
+.star { font-size: 26px; opacity: .3; cursor: pointer; transition: transform .2s; } .star.on { opacity: 1; color: var(--d); transform: scale(1.1); }
+.err { color: #ff99aa; } .ok { color: #88ffe0; }
+.feature-card { padding: 12px; border-radius: 16px; background: rgba(0,0,0,0.35); border: 1px solid color-mix(in srgb, var(--a) 20%, transparent); display: flex; align-items: flex-start; gap: 10px; }
+.th-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.th-card { padding: 14px; border-radius: 18px; display: flex; flex-direction: column; gap: 8px; text-align: center; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid color-mix(in srgb, var(--a) 22%, transparent); background: rgba(0,0,0,0.3); }
+.th-card.on { border-color: var(--d); box-shadow: 0 0 20px var(--c); background: color-mix(in srgb, var(--c) 20%, transparent); }
+.sw-circle { width: 32px; height: 32px; border-radius: 50%; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.q-opt { width: 100%; text-align: left; padding: 12px 14px; border-radius: 14px; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid color-mix(in srgb, var(--a) 25%, transparent); transition: background .2s, border-color .2s, box-shadow .2s; }
+.q-opt.ok { background: rgba(34,197,94,0.22); border-color: #22c55e; color: #dcfce7; box-shadow: 0 0 14px rgba(34,197,94,0.35); }
+.q-opt.bad { background: rgba(239,68,68,0.25); border-color: #ef4444; color: #fee2e2; box-shadow: 0 0 14px rgba(239,68,68,0.35); animation: shake .35s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.msg-tools { display: flex; justify-content: flex-end; margin-top: 6px; }
+.mini-btn { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid color-mix(in srgb, var(--a) 25%, transparent); }
+.ov { position: fixed; inset: 0; z-index: 85; background: rgba(8,3,15,0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; }
+.ov > div { max-width: 520px; margin: auto; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 12px 14px; gap: 10px; overflow-y: auto; scrollbar-width: none; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.th-title { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 700; font-size: 21px; line-height: 1.2; letter-spacing: .4px; color: var(--d); text-shadow: 0 0 14px color-mix(in srgb, var(--d) 35%, transparent); margin-bottom: 8px; }
+.th-desc { font-family: 'Manrope', system-ui, sans-serif; font-size: 13px; line-height: 1.8; letter-spacing: .25px; font-weight: 500; color: var(--a); opacity: .92; }
+.thread-card { animation: thIn 1.2s cubic-bezier(.22,1,.36,1) both; }
+@keyframes thIn { from { opacity: 0; transform: translateY(10px) scale(.98); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div id="app">
+ <header class="flex items-start justify-between flex-none">
+  <div><div class="brand">ApexCalc Ai</div><div class="sub"></div></div>
+  <div class="flex items-center gap-1.5">
+   <button class="help-btn" id="helpBtn" title="Calculator Help & Guide"><i data-lucide="help-circle" class="w-4 h-4"></i> Help</button>
+   <button class="ai-btn" id="aib"><i data-lucide="sparkles" class="w-4 h-4"></i> UR AI</button>
+   <div style="position:relative">
+    <button class="dots" id="mbtn" aria-label="More options"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
+    <div class="menu gl hid" id="menu">
+     <button class="mi" data-go="theme"><i data-lucide="palette" class="w-4 h-4"></i> Customize Theme</button>
+     <button class="mi" data-go="about"><i data-lucide="info" class="w-4 h-4"></i> About ApexCalc Ai</button>
+     <button class="mi" data-go="rate"><i data-lucide="star" class="w-4 h-4"></i> Rate & Feedback</button>
+     <button class="mi" id="soundToggle"><i data-lucide="volume-2" class="w-4 h-4"></i> Sound: <span id="sndSt">ON</span></button>
+    </div>
+   </div>
+  </div>
+ </header>
+
+ <nav class="nav-categories" id="navCats">
+  <button class="cat-btn on" data-cat="all">All Tools</button>
+  <button class="cat-btn" data-cat="core">Core</button>
+  <button class="cat-btn" data-cat="studios">Studios</button>
+  <button class="cat-btn" data-cat="tools">Smart Tools</button>
+ </nav>
+ <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+
+ <!-- BASIC + SCIENTIFIC UNIFIED CALCULATOR PANEL -->
+ <section class="panel" id="p-calc">
+  <div class="gl" id="dw">
+   <div id="st"><span>Apex Core Engine</span><span id="degSt">DEG</span></div>
+   <div id="disp" title="Tap to position cursor"></div>
+   <div id="res"></div>
+  </div>
+  <div class="flex justify-between items-center flex-none">
+   <div class="seg"><button id="btnDec" class="on"><i data-lucide="binary" class="w-3.5 h-3.5"></i> Dec</button><button id="btnFrac"><i data-lucide="divide" class="w-3.5 h-3.5"></i> p/q</button></div>
+   <span class="sub" style="font-size:10px">Tap display to position cursor</span>
+  </div>
+  <div class="kp" id="kp"></div>
+ </section>
+
+ <!-- PROBABILITY STUDIO -->
+ <section class="panel hid" id="p-prob">
+  <div>
+   <div class="brand" style="font-size:22px">Apex Probability Studio</div>
+   <div class="sub">Core Calculations, Bayes' Theorem, Combinatorics & Distributions</div>
+  </div>
+  <div class="gl p-3 flex flex-col gap-2">
+   <div class="seg" id="probSeg">
+    <button data-prt="core" class="on"><i data-lucide="pie-chart" class="w-3.5 h-3.5"></i> Core</button>
+    <button data-prt="bayes"><i data-lucide="git-merge" class="w-3.5 h-3.5"></i> Bayes</button>
+    <button data-prt="comb"><i data-lucide="layers" class="w-3.5 h-3.5"></i> Combinatorics</button>
+    <button data-prt="dist"><i data-lucide="activity" class="w-3.5 h-3.5"></i> Distributions</button>
+   </div>
+
+   <div id="probCoreBox" class="flex flex-col gap-2">
+    <label class="sub">Select Event Solver Type:</label>
+    <select class="in custom-select" id="prCoreType">
+     <option value="single">Single Event Probability: P(A) = Favorable / Total</option>
+     <option value="complement">Complementary Event: P(A') = 1 - P(A)</option>
+     <option value="union">Union of Events: P(A ∪ B) = P(A) + P(B) - P(A ∩ B)</option>
+     <option value="cond">Conditional Probability: P(A|B) = P(A ∩ B) / P(B)</option>
+     <option value="atleast">Probability of At Least One: 1 - P(None)</option>
+    </select>
+    <div id="prCoreInputs" class="grid grid-cols-2 gap-2"></div>
+   </div>
+
+   <div id="probBayesBox" class="hid flex flex-col gap-2">
+    <div class="sub">Bayes' Theorem: P(A|B) = [P(B|A) * P(A)] / P(B)</div>
+    <input class="in" id="prBayesP_A" placeholder="Prior P(A) e.g., 0.01">
+    <input class="in" id="prBayesP_BA" placeholder="Likelihood P(B|A) e.g., 0.95">
+    <input class="in" id="prBayesP_BnotA" placeholder="False Positive P(B|A') e.g., 0.05">
+   </div>
+
+   <div id="probCombBox" class="hid flex flex-col gap-2">
+    <select class="in custom-select" id="prCombType">
+     <option value="ncr">Combinations nCr = n! / (r!(n-r)!)</option>
+     <option value="npr">Permutations nPr = n! / (n-r)!</option>
+     <option value="fact">Factorial n!</option>
+     <option value="repPerm">Repetition Permutations n^r</option>
+     <option value="circPerm">Circular Permutations (n-1)!</option>
+    </select>
+    <div class="grid grid-cols-2 gap-2">
+     <input class="in" id="prCombN" placeholder="n (Total Items)" type="number">
+     <input class="in" id="prCombR" placeholder="r (Selected Items)" type="number">
+    </div>
+   </div>
+
+   <div id="probDistBox" class="hid flex flex-col gap-2">
+    <select class="in custom-select" id="prDistType">
+     <option value="binomial">Binomial Distribution (n, p, x)</option>
+     <option value="poisson">Poisson Distribution (λ, x)</option>
+     <option value="normal">Normal Bell Curve Distribution (μ, σ, x)</option>
+     <option value="uniform">Continuous Uniform Distribution (a, b, x)</option>
+    </select>
+    <div id="prDistInputs" class="grid grid-cols-3 gap-2"></div>
+   </div>
+
+   <button class="pb mt-1" id="prSolveBtn"><i data-lucide="calculator" class="w-4 h-4"></i> Solve Step-by-Step</button>
+  </div>
+
+  <div class="gl p-2">
+   <canvas id="prCanvas" class="gcanvas" style="height:180px"></canvas>
+  </div>
+  <div id="prResults" class="flex flex-col gap-2"></div>
+ </section>
+
+ <!-- GEOMETRY STUDIO -->
+ <section class="panel hid" id="p-geo">
+  <div>
+   <div class="brand" style="font-size:22px">UR Geometry Studio</div>
+   <div class="sub">Shape Properties, Coordinates, Perimeter, Area & Volume</div>
+  </div>
+  <div class="gl p-3 flex flex-col gap-2">
+   <select class="in custom-select" id="geoShape">
+    <option value="circle">Circle (Radius r)</option>
+    <option value="triangle">Triangle (Base b, Height h, Sides a,c)</option>
+    <option value="square">Square (Side a)</option>
+    <option value="rectangle">Rectangle (Width w, Height h)</option>
+    <option value="sphere">Sphere (Radius r)</option>
+    <option value="cylinder">Cylinder (Radius r, Height h)</option>
+    <option value="coord">Coordinate Geometry (x1, y1 to x2, y2)</option>
+   </select>
+   <div id="geoInputs" class="grid grid-cols-2 gap-2"></div>
+   <button class="pb mt-1" id="geoCalcBtn"><i data-lucide="compass" class="w-4 h-4"></i> Calculate Geometry</button>
+  </div>
+  <div class="gl p-2">
+   <canvas id="geoCanvas" class="gcanvas" style="height:180px"></canvas>
+  </div>
+  <div id="geoResults" class="flex flex-col gap-2"></div>
+ </section>
+
+ <!-- STATS STUDIO -->
+ <section class="panel hid" id="p-stats">
+  <div>
+   <div class="brand" style="font-size:22px">UR Statistics Studio</div>
+   <div class="sub">Grouped & Ungrouped Analysis with Step-by-Step Details</div>
+  </div>
+  <div class="gl p-3 flex flex-col gap-2">
+   <div class="seg" id="stSeg">
+    <button data-stt="ungrouped" class="on">Ungrouped Data</button>
+    <button data-stt="grouped">Grouped Data</button>
+   </div>
+   
+   <div id="stUngroupedBox">
+    <label class="sub mb-1 block">Data Points (comma separated):</label>
+    <input class="in" id="stDataInput" placeholder="e.g. 12, 15, 18, 15, 22, 30, 25">
+   </div>
+
+   <div id="stGroupedBox" class="hid flex flex-col gap-2">
+    <label class="sub block">Intervals & Frequencies:</label>
+    <div class="grid grid-cols-2 gap-2">
+     <textarea class="in" id="stIntervalsInput" rows="4" placeholder="10-20&#10;20-30&#10;30-40"></textarea>
+     <textarea class="in" id="stFreqsInput" rows="4" placeholder="5&#10;8&#10;12"></textarea>
+    </div>
+   </div>
+
+   <button class="pb" id="stCalcBtn">Calculate Statistics</button>
+  </div>
+  <div id="stResults" class="flex flex-col gap-2"></div>
+ </section>
+
+ <!-- EQUATION SOLVER -->
+ <section class="panel hid" id="p-eq">
+  <div>
+   <div class="brand" style="font-size:22px">UR Equation Solver</div>
+   <div class="sub">Linear, Quadratic, Polynomial & Simultaneous Systems</div>
+  </div>
+  <div class="gl p-3 flex flex-col gap-2">
+   <div class="seg" id="eqSeg">
+    <button data-eqt="single" class="on">Single Equation</button>
+    <button data-eqt="system">System (2 Variables)</button>
+   </div>
+   
+   <div id="eqSingleBox">
+    <label class="sub mb-1 block">Enter Equation:</label>
+    <input class="in" id="eqInput" placeholder="2x^2 + 3x - 5 = 0">
+   </div>
+
+   <div id="eqSystemBox" class="hid flex flex-col gap-2">
+    <label class="sub block">Enter 2 Linear Equations:</label>
+    <input class="in" id="eqSys1" placeholder="2x + 3y = 7">
+    <input class="in" id="eqSys2" placeholder="x - 2y = 0">
+   </div>
+
+   <button class="pb" id="eqSolveBtn">Solve Step-by-Step</button>
+  </div>
+  <div id="eqResults" class="flex flex-col gap-2"></div>
+ </section>
+
+ <!-- CALCULUS STUDIO -->
+ <section class="panel hid" id="p-calc-studio">
+  <div>
+   <div class="brand" style="font-size:22px">UR Calculus Studio</div>
+   <div class="sub">Symbolic Differentiation & Definite Integration</div>
+  </div>
+  <div class="gl p-3 flex flex-col gap-2">
+   <div class="seg" id="calcSeg">
+    <button data-ct="diff" class="on">Derivative d/dx</button>
+    <button data-ct="integ">Integral ∫ dx</button>
+   </div>
+   <div>
+    <label class="sub mb-1 block">Function f(x):</label>
+    <input class="in" id="calcExpr" placeholder="x^3 - 4*x^2 + 6*x">
+   </div>
+   
+   <div id="calcBoundsBox" class="hid flex gap-2">
+    <div class="flex-1"><label class="sub mb-1 block">Lower Limit (a):</label><input class="in" id="calcLimA" value="0"></div>
+    <div class="flex-1"><label class="sub mb-1 block">Upper Limit (b):</label><input class="in" id="calcLimB" value="2"></div>
+   </div>
+
+   <button class="pb" id="calcComputeBtn">Compute Step-by-Step</button>
+  </div>
+  <div id="calcResults" class="flex flex-col gap-2"></div>
+ </section>
+
+ <!-- UNIT CONVERTER -->
+ <section class="panel hid" id="p-conv">
+  <div class="gl p-4 flex flex-col gap-3">
+   <div class="brand" style="font-size:22px">Unit Converter</div>
+   <div class="sub">Select category, enter value, and choose target units</div>
+   <div><label class="sub mb-1 block">Category</label><select class="in custom-select" id="cc"></select></div>
+   <div><label class="sub mb-1 block">Value to Convert</label><input class="in" id="cv" type="number" inputmode="decimal" value="1"></div>
+   <div class="flex gap-2">
+    <div class="flex-1"><label class="sub mb-1 block">From</label><select class="in custom-select" id="cf"></select></div>
+    <div class="flex-1"><label class="sub mb-1 block">To</label><select class="in custom-select" id="ct"></select></div>
+   </div>
+   <div class="p-3 gl mt-1">
+    <div class="sub mb-1">Converted Result</div>
+    <div id="cr" class="text-xl font-bold" style="color:var(--d)"></div>
+   </div>
+  </div>
+ </section>
+
+ <!-- CALCULATION HISTORY -->
+ <section class="panel hid" id="p-hist">
+  <div class="flex justify-between items-center">
+   <div><div class="brand" style="font-size:22px">Calculation History</div><div class="sub">Recent calculations & export tools</div></div>
+   <button class="tb" id="exportHistBtn"><i data-lucide="download" class="w-3.5 h-3.5"></i> Export CSV</button>
+  </div>
+  <input class="in" id="histSearch" placeholder="Search history items...">
+  <div id="histList" class="flex flex-col gap-2 mt-1"></div>
+  <button class="tb mt-2" id="clearHist"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear History</button>
+ </section>
+
+ <!-- GRAPH STUDIO -->
+ <section class="panel hid" id="p-graph">
+  <div>
+   <div class="brand" style="font-size:22px">UR Graph Studio</div>
+   <div class="sub">Plot Cartesian, Parametric, Polar curves</div>
+  </div>
+  <div class="gl p-3 flex flex-col gap-2">
+   <div class="seg" id="gseg">
+    <button data-gt="cart" class="on">y = f(x)</button>
+    <button data-gt="param">Parametric</button>
+    <button data-gt="polar">Polar</button>
+   </div>
+   <input class="in" id="gexpr" placeholder="y = x^2 - 4">
+   <div class="flex gap-2"><button class="pb" id="gplot" style="flex:1">Plot Graph</button><button class="tb" id="gclr">Clear</button><button class="tb" id="grst">Reset</button></div>
+   <div id="gerr" class="sub err"></div>
+  </div>
+  <div class="gl p-2"><canvas id="gc" class="gcanvas"></canvas></div>
+  <div class="sub" id="gread">Drag to pan · scroll/pinch to zoom</div>
+ </section>
+
+ <!-- MATRIX STUDIO -->
+ <section class="panel hid" id="p-mat">
+  <div>
+   <div class="brand" style="font-size:22px">UR Matrix Studio</div>
+   <div class="sub">Linear algebra, determinants, inverse</div>
+  </div>
+  <div class="seg" id="mseg">
+   <button data-mm="calc" class="on">Calculator</button>
+   <button data-mm="prop">Properties</button>
+   <button data-mm="solve">Step-by-Step</button>
+  </div>
+  <div class="flex flex-col gap-2" id="mtop">
+   <div class="flex gap-2 items-center">
+    <label class="sub">Matrix Size:</label>
+    <select class="in custom-select" id="mSize" style="width:auto"><option value="2">2 × 2</option><option value="3" selected>3 × 3</option></select>
+   </div>
+   <div id="edA"></div><div id="edB"></div>
+   <div id="mCalc" class="gl p-3 flex flex-col gap-2">
+    <select class="in custom-select" id="mop">
+     <option value="add">Addition (A + B)</option>
+     <option value="sub">Subtraction (A − B)</option>
+     <option value="mul">Multiplication (A · B)</option>
+     <option value="det">Determinant det(A)</option>
+     <option value="inv">Inverse A⁻¹</option>
+    </select>
+    <button class="pb" id="mrun">Calculate Matrix</button>
+   </div>
+  </div>
+  <div id="mres" class="flex flex-col gap-2"></div>
+ </section>
+
+ <section class="panel hid" id="p-theme"></section>
+
+ <section class="panel hid" id="p-about">
+  <div class="brand" style="font-size:22px">About ApexCalc Ai</div>
+  <div class="gl p-4 flex flex-col gap-3">
+   <div class="font-bold text-base" style="color:var(--d)">Professional Excellence</div>
+   <p class="text-xs leading-relaxed" style="opacity:.9">ApexCalc Ai is . Here is how each feature works in simple terms:</p>
+   
+   <div class="flex flex-col gap-2 text-xs" style="opacity:.9">
+    <div class="feature-card"><i data-lucide="calculator" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>1. Unified Calculator:</b> Type numbers and basic math (+, -, ×, ÷) or tap the <b>fx</b> button to open scientific functions like sin, cos, log, and powers.</div></div>
+    <div class="feature-card"><i data-lucide="pie-chart" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>2. Probability Studio:</b> Solve single events, Bayes' Theorem, combinations (nCr), permutations, and probability distributions with step-by-step guidance.</div></div>
+    <div class="feature-card"><i data-lucide="compass" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>3. Geometry Studio:</b> Enter shape dimensions (like radius or height) to instantly calculate area, perimeter, surface area, and volume with visual drawings.</div></div>
+    <div class="feature-card"><i data-lucide="bar-chart-2" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>4. Statistics Studio:</b> Input numbers separated by commas for ungrouped data or intervals/frequencies for grouped data to find mean, median, mode, and standard deviation.</div></div>
+    <div class="feature-card"><i data-lucide="variable" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>5. Equation Solver:</b> Type linear or quadratic equations (like x^2 - 5x + 6 = 0) to find exact roots and solutions step-by-step.</div></div>
+    <div class="feature-card"><i data-lucide="sigma" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>6. Calculus Studio:</b> Enter any function f(x) to compute symbolic derivatives (d/dx) or definite integrals easily.</div></div>
+    <div class="feature-card"><i data-lucide="line-chart" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>7. Graph Studio:</b> Type algebraic equations (like y = x^2 - 4) to plot, zoom, pan, and inspect curves in real-time.</div></div>
+    <div class="feature-card"><i data-lucide="grid" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>8. Matrix Studio:</b> Set matrix sizes (2×2 or 3×3), fill numbers, and calculate addition, multiplication, determinants, or inverses.</div></div>
+    <div class="feature-card"><i data-lucide="repeat" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>9. Unit Converter:</b> Convert between length, weight, temperature, and other units instantly by selecting categories and target units.</div></div>
+    <div class="feature-card"><i data-lucide="sparkles" class="w-5 h-5 text-amber-400 flex-none"></i><div><b>10. UR Intelligence AI:</b> Tap <b>UR AI</b> to chat, ask questions, use voice input via microphone, or upload math problem photos for instant AI help!</div></div>
+   </div>
+
+   <div class="sub mt-1">Version 9.0 · </div>
+  </div>
+ </section>
+
+ <section class="panel hid" id="p-rate">
+  <div class="brand" style="font-size:22px">Rate & Feedback</div>
+  <div class="gl p-4 flex flex-col gap-3 text-center">
+   <div class="font-bold" style="color:var(--a)">How do you like ApexCalc Ai?</div>
+   <div class="flex justify-center gap-2" id="starContainer">
+    <span class="star" data-s="1">★</span><span class="star" data-s="2">★</span><span class="star" data-s="3">★</span><span class="star" data-s="4">★</span><span class="star" data-s="5">★</span>
+   </div>
+   <textarea class="in" id="feedbackText" placeholder="Leave your comments or feature requests..." rows="3"></textarea>
+   <button class="pb" id="submitFeedback">Submit Feedback</button>
+  </div>
+ </section>
+</div>
+
+<!-- WELCOME INTRO OVERLAY -->
+<div id="wel"><div class="gl" id="wc">
+ <div class="brand" style="font-size:26px">ApexCalc Ai</div>
+ <div class="sub"></div>
+ <div id="threadContainer" class="flex flex-col gap-2 min-h-[190px] justify-center"></div>
+ <div class="flex justify-center my-1" id="dotsBox"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+ <button class="pb" id="welNextBtn">Next Studio <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+</div></div>
+
+<!-- UR INTELLIGENCE AI SCREEN -->
+<div id="ai" class="hid"><div>
+ <div class="flex justify-between items-center flex-none border-b border-purple-500/20 pb-2">
+  <div>
+   <div class="flex items-center gap-2">
+    <div class="brand" style="font-size:22px">UR Intelligence</div>
+    <span class="ai-header-badge" id="aiModeBadge"><i data-lucide="sparkles" class="w-3 h-3"></i> AI Active</span>
+   </div>
+   <div class="sub">Multilingual Assistant · Voice, Photo & Contextual Guide</div>
+  </div>
+  <button class="pb" id="aix" style="padding:6px 14px"><i data-lucide="x" class="w-4 h-4"></i> Close</button>
+ </div>
+
+ <div class="flex gap-2 overflow-x-auto py-1 scrollbar-none flex-none" id="aiPrompts">
+  <button class="ai-chip" data-prompt="Help me navigate calculator features">❓ App Navigation</button>
+  <button class="ai-chip" data-prompt="Solve Bayes Theorem step by step">🎲 Probability Studio</button>
+  <button class="ai-chip" data-prompt="How to solve quadratic equations?">⚡ Quadratic Formula</button>
+  <button class="ai-chip" id="quizOpen">📝 Quiz</button>
+  <button class="ai-chip" id="chatNew">＋ New chat</button>
+  <button class="ai-chip" id="chatHist">🗂 Saved chats</button>
+  <button class="ai-chip" id="chatDel">🗑 Delete chat</button>
+ </div>
+
+ <div id="chat"></div>
+ <div class="flex gap-2 items-center flex-none">
+  <label class="ic" title="Attach Image"><i data-lucide="camera" class="w-4 h-4"></i><input type="file" id="imgFile" accept="image/*" class="hid"></label>
+  <button class="ic" id="micBtn" title="Voice Input"><i data-lucide="mic" class="w-4 h-4"></i></button>
+  <input class="in" id="q" placeholder="Ask math or type 'Help'...">
+  <button class="ic on" id="send" aria-label="Send"><i data-lucide="send" class="w-4 h-4"></i></button>
+ </div>
+</div></div>
+
+<!-- UR QUIZ OVERLAY -->
+<div id="quizOv" class="ov hid"><div>
+ <div class="flex justify-between items-center flex-none">
+  <div>
+   <div class="brand" style="font-size:22px">UR Quiz</div>
+   <div class="sub">Pick a topic · MCQs · instant feedback</div>
+  </div>
+  <button class="pb" id="quizX" style="padding:6px 14px"><i data-lucide="x" class="w-4 h-4"></i> Close</button>
+ </div>
+ <div id="quizSetup" class="gl p-3 flex flex-col gap-2">
+  <input class="in" id="quizTopic" placeholder="Topic likho, e.g. quadratic equations, probability">
+  <div class="seg" id="quizLevel">
+   <button data-lv="simple" class="on">Simple (5 Q)</button>
+   <button data-lv="full">Full topic (10 Q)</button>
+  </div>
+  <div class="sub" id="quizTopicsHint" style="line-height:1.6"></div>
+  <button class="pb" id="quizStart"><i data-lucide="play" class="w-4 h-4"></i> Start Quiz</button>
+ </div>
+ <div id="quizBody" class="flex flex-col gap-2"></div>
+</div></div>
+
+<!-- SAVED CHATS OVERLAY -->
+<div id="histOv" class="ov hid"><div>
+ <div class="flex justify-between items-center flex-none">
+  <div class="brand" style="font-size:22px">Saved Chats</div>
+  <button class="pb" id="histX" style="padding:6px 14px">Close</button>
+ </div>
+ <div id="chatList" class="flex flex-col gap-2"></div>
+</div></div>
+
+<script>
+// The Gemini API key lives only on the server (Vercel env var GEMINI_API_KEY).
+// The browser never sees it; it talks to /api/chat instead.
+
+const $ = selector => document.querySelector(selector);
+const $$ = selector => document.querySelectorAll(selector);
+
+function setupGlassSelects(){
+  $$('select.custom-select').forEach(sel => {
+    if (sel.dataset.customized === 'true') return;
+    sel.dataset.customized = 'true';
+    sel.style.display = 'none';
+
+    const trigger = document.createElement('div');
+    trigger.className = 'custom-select-trigger';
+    
+    const updateTriggerText = () => {
+      const selectedOpt = sel.options[sel.selectedIndex];
+      trigger.innerHTML = `<span>${selectedOpt ? selectedOpt.text : ''}</span><i data-lucide="chevron-down" class="w-4 h-4 opacity-75"></i>`;
+      refreshIcons();
+    };
+    updateTriggerText();
+
+    trigger.onclick = () => {
+      const modal = document.createElement('div');
+      modal.className = 'custom-select-modal';
+      const box = document.createElement('div');
+      box.className = 'custom-select-box';
+
+      Array.from(sel.options).forEach((opt, idx) => {
+        const item = document.createElement('div');
+        const isSel = idx === sel.selectedIndex;
+        item.className = `custom-option ${isSel ? 'selected' : ''}`;
+        item.innerHTML = `<span>${opt.text}</span><div class="radio-dot"></div>`;
+        item.onclick = (e) => {
+          e.stopPropagation();
+          sel.selectedIndex = idx;
+          sel.dispatchEvent(new Event('change'));
+          updateTriggerText();
+          modal.remove();
+        };
+        box.appendChild(item);
+      });
+
+      modal.appendChild(box);
+      modal.onclick = (e) => { if(e.target === modal) modal.remove(); };
+      document.body.appendChild(modal);
+    };
+    sel.parentNode.insertBefore(trigger, sel);
+  });
+}
+document.addEventListener('DOMContentLoaded', setupGlassSelects);
+setTimeout(setupGlassSelects, 300);
+
+const fxCv = document.getElementById('fx'), fxCtx = fxCv.getContext('2d');
+let particles = [], fxRunning = false;
+function resizeFx(){ fxCv.width = window.innerWidth; fxCv.height = window.innerHeight; }
+resizeFx(); window.addEventListener('resize', resizeFx);
+
+function launchFireworks(x, y){
+  const colors = ['#fbbf24', '#c084fc', '#38bdf8', '#ffffff', '#f43f5e'];
+  for(let i=0; i<70; i++){
+    particles.push({
+      x: x ?? fxCv.width / 2, y: y ?? fxCv.height / 2.2,
+      vx: (Math.random()-.5)*15, vy: (Math.random()-.5)*15,
+      radius: Math.random()*3.5+1.5,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      alpha: 1, life: .022
+    });
+  }
+  if(!fxRunning){ fxRunning = true; animFx(); }
+}
+
+function animFx(){
+  if(!particles.length){ fxRunning = false; fxCtx.clearRect(0, 0, fxCv.width, fxCv.height); return; }
+  fxCtx.clearRect(0, 0, fxCv.width, fxCv.height);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.alpha -= p.life;
+    fxCtx.globalAlpha = Math.max(0, p.alpha); fxCtx.fillStyle = p.color;
+    fxCtx.beginPath(); fxCtx.arc(p.x, p.y, p.radius, 0, Math.PI*2); fxCtx.fill();
+  });
+  particles = particles.filter(p => p.alpha > 0);
+  requestAnimationFrame(animFx);
+}
+
+let soundEnabled = true, currentToneFreq = 432;
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+
+function playWelcomeTone(freq=528){
+  if(!soundEnabled) return;
+  try {
+    if(AC.state === 'suspended') AC.resume();
+    const t = AC.currentTime;
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
+    o.frequency.exponentialRampToValueAtTime(freq * 1.5, t + 0.25);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.08, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t + 0.36);
+  } catch(e){}
+}
+
+function tick(){
+  if(!soundEnabled) return;
+  try {
+    if(AC.state === 'suspended') AC.resume();
+    const t = AC.currentTime;
+    const o1 = AC.createOscillator(), o2 = AC.createOscillator(), g = AC.createGain();
+    o1.type = 'sine'; o1.frequency.setValueAtTime(currentToneFreq, t);
+    o2.type = 'sine'; o2.frequency.setValueAtTime(currentToneFreq * 1.5, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.05, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    o1.connect(g); o2.connect(g); g.connect(AC.destination);
+    o1.start(t); o2.start(t); o1.stop(t + 0.24); o2.stop(t + 0.24);
+  } catch(e){}
+  if(navigator.vibrate) navigator.vibrate(5);
+}
+document.addEventListener('pointerdown', e => { if(e.target.closest('button')) tick(); });
+
+function refreshIcons(){ if(window.lucide) lucide.createIcons(); }
+
+// ---------- INTRO · CALM LOW-PITCH CHIME & SOFT FIREWORKS ----------
+function playIntroChime(freq = 110){
+  if(!soundEnabled) return;
+  try {
+    if(AC.state === 'suspended') AC.resume();
+    const t = AC.currentTime, dur = 2.2;
+    const out = AC.createGain(), lp = AC.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = 0.4;
+    out.gain.setValueAtTime(0.0001, t);
+    out.gain.exponentialRampToValueAtTime(0.09, t + 0.45);
+    out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    out.connect(lp); lp.connect(AC.destination);
+    [1, 1.5, 2].forEach((ratio, i) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq * ratio, t);
+      g.gain.value = [1, 0.45, 0.2][i];
+      o.connect(g); g.connect(out);
+      o.start(t); o.stop(t + dur + 0.1);
+    });
+  } catch(e){}
+}
+
+function introBurst(){
+  [0, 380, 820].forEach((d, i) => setTimeout(() => {
+    const x = fxCv.width * (0.3 + 0.4 * ((i * 0.37) % 1));
+    const y = fxCv.height * (0.22 + 0.18 * ((i * 0.61) % 1));
+    launchFireworks(x, y);
+  }, d));
+}
+
+const ONBOARDING_THREADS = [
+  { title: "Welcome to ApexCalc Ai Master", desc: "Welcome to ApexCalc Ai — an advanced enterprise computational workspace designed for high-precision mathematics.", icon: "sparkles", soundFreq: 98 },
+  { title: "Comprehensive Studio Suite", desc: "Explore an integrated computational suite featuring Core Arithmetic, Scientific Functions, Probability, Geometry, Statistics, Calculus, and Graphs.", icon: "layout-grid", soundFreq: 110 },
+  { title: "UR Intelligence AI Assistant", desc: "Experience real-time AI problem solving, camera photo analysis, and voice commands engineered for professional excellence.", icon: "bot", soundFreq: 130.81 }
+];
+
+let threadIdx = 0;
+function showThread(idx){
+  const box = document.getElementById('threadContainer');
+  const item = ONBOARDING_THREADS[idx];
+  box.innerHTML = `
+    <div class="thread-card gl">
+      <div class="flex justify-center mb-2 text-amber-400"><i data-lucide="${item.icon}" class="w-8 h-8"></i></div>
+      <div class="th-title">${item.title}</div>
+      <div class="th-desc">${item.desc}</div>
+    </div>
+  `;
+  document.querySelectorAll('#dotsBox .dot').forEach((d, i) => d.classList.toggle('on', i === idx));
+  refreshIcons();
+  introBurst();
+  playIntroChime(item.soundFreq);
+}
+
+document.getElementById('welNextBtn').onclick = () => {
+  threadIdx++;
+  if(threadIdx < ONBOARDING_THREADS.length){ showThread(threadIdx); }
+  else { document.getElementById('wel').classList.add('hid'); introBurst(); playIntroChime(82.41); }
+};
+showThread(0);
+
+const PALETTES = [
+  {n:'Royal Purple & Gold',b1:'#08030f',b2:'#240a42',a:'#e2d4ff',c:'#8b5cf6',d:'#fbbf24',kbg:'#130a21',freq:432,sw:'#8b5cf6'},
+  {n:'Ocean Blue & Gold',b1:'#030a14',b2:'#0f2d4a',a:'#bce6ff',c:'#0284c7',d:'#fbbf24',kbg:'#071728',freq:396,sw:'#0284c7'},
+  {n:'Emerald & Navy',b1:'#040e09',b2:'#143825',a:'#c2f0d5',c:'#10b981',d:'#f59e0b',kbg:'#081d13',freq:528,sw:'#10b981'},
+  {n:'Burgundy & Camel',b1:'#120308',b2:'#3b0a1a',a:'#fbcfe8',c:'#be185d',d:'#f59e0b',kbg:'#200610',freq:440,sw:'#be185d'},
+  {n:'Neon Cyber Pink',b1:'#14030d',b2:'#400829',a:'#fbcfe8',c:'#ec4899',d:'#ef4444',kbg:'#210617',freq:639,sw:'#ec4899'},
+  {n:'Classic Gold',b1:'#050505',b2:'#1f1a0d',a:'#fef08a',c:'#d97706',d:'#fbbf24',kbg:'#12100a',freq:288,sw:'#fbbf24'}
+];
+
+function applyTheme(idx){
+  const t = PALETTES[idx] || PALETTES[0];
+  const r = document.documentElement.style;
+  r.setProperty('--b1', t.b1); r.setProperty('--b2', t.b2); r.setProperty('--a', t.a);
+  r.setProperty('--c', t.c); r.setProperty('--d', t.d); r.setProperty('--k-bg', t.kbg);
+  currentToneFreq = t.freq;
+  try { localStorage.setItem('ur_theme', idx); } catch(e){}
+  renderThemePanel();
+}
+
+function renderThemePanel(){
+  const cur = +(localStorage.getItem('ur_theme') || 0);
+  document.getElementById('p-theme').innerHTML =
+    '<div class="brand mb-2" style="font-size:22px">Customize Theme Palettes</div><div class="th-grid">' +
+    PALETTES.map((p, i) => `<div class="th-card gl ${i===cur?'on':''}" onclick="applyTheme(${i})"><div class="sw-circle" style="background:linear-gradient(135deg, ${p.sw}, ${p.d})"></div><div>${p.n}</div></div>`).join('') + '</div>';
+}
+
+let ex = '', cp = 0, deg = true, FR = false, lastAns = 0;
+let hist = [];
+try { hist = JSON.parse(localStorage.getItem('ur_hist') || '[]'); } catch(e){ hist = []; }
+
+function fact(n){ if(n<0 || n>170 || n%1) return NaN; let r = 1; for(let i=2; i<=n; i++) r*=i; return r; }
+function ev(s){
+  try {
+    s = s.replace(/\s/g,'').replace(/[+\-−×÷*^(]+$/,''); if(!s) return null;
+    const o = (s.match(/\(/g)||[]).length - (s.match(/\)/g)||[]).length; if(o>0) s += ')'.repeat(o);
+    const R = x => deg ? x*Math.PI/180 : x,
+          F = {
+            sin: x=>Math.sin(R(x)), cos: x=>Math.cos(R(x)), tan: x=>Math.tan(R(x)),
+            asin: x=>deg?Math.asin(x)*180/Math.PI:Math.asin(x),
+            acos: x=>deg?Math.acos(x)*180/Math.PI:Math.acos(x),
+            atan: x=>deg?Math.atan(x)*180/Math.PI:Math.atan(x),
+            sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh, asinh: Math.asinh, acosh: Math.acosh, atanh: Math.atanh,
+            log: Math.log10, ln: Math.log, '√': Math.sqrt, cbrt: Math.cbrt, abs: Math.abs
+          };
+    let p = 0;
+    function pri(){
+      let v; const c = s[p];
+      if(c==='('){ p++; v = add(); if(s[p]===')') p++; }
+      else if(c==='π'){ p++; v = Math.PI; }
+      else if(c==='e'){ p++; v = Math.E; }
+      else if(s.slice(p,p+3)==='Ans'){ p+=3; v = lastAns; }
+      else {
+        const m = /^(asinh|acosh|atanh|asin|acos|atan|sinh|cosh|tanh|sin|cos|tan|log|ln|√|cbrt|abs)/.exec(s.slice(p));
+        if(m){ p += m[0].length; v = F[m[0]](pri()); }
+        else { const n = /^(\d+\.?\d*|\.\d+)/.exec(s.slice(p)); if(!n) throw 0; p += n[0].length; v = parseFloat(n[0]); }
+      }
+      while(s[p]==='!'||s[p]==='%'){ v = s[p]==='!' ? fact(v) : v/100; p++; } return v;
+    }
+    function un(){ if(s[p]==='-'||s[p]==='−'){ p++; return -un(); } if(s[p]==='+'){ p++; return un(); } const b = pri(); if(s[p]==='^'){ p++; return Math.pow(b, un()); } return b; }
+    function mul(){ let v = un(); for(;;){ const c = s[p]; if(c==='×'||c==='*'){ p++; v *= un(); } else if(c==='÷'||c==='/'){ p++; v /= un(); } else if(c&&!/[+\-−)]/.test(c)&&c!=='^') v *= un(); else return v; } }
+    function add(){ let v = mul(); for(;;){ const c = s[p]; if(c==='+'||c==='-'||c==='−'){ p++; const st = p; let r = mul(); if(s[p-1]==='%'&&/^[\d.]+%$/.test(s.slice(st,p))) r *= v; v += c==='+' ? r : -r; } else return v; } }
+    const v = add(); return p < s.length || !isFinite(v) ? null : v;
+  } catch(e) { return null; }
+}
+
+const dec = x => Math.abs(x) < 1e-12 ? '0' : String(+x.toPrecision(12));
+function frac(x){
+  if(Number.isInteger(x)) return String(x);
+  const sg = x < 0 ? '-' : ''; x = Math.abs(x); let h1 = 1, h0 = 0, k1 = 0, k0 = 1, b = x;
+  for(let i=0; i<40; i++){ const a = Math.floor(b); [h1, h0] = [a*h1+h0, h1]; [k1, k0] = [a*k1+k0, k1]; if(Math.abs(x-h1/k1)<1e-9*Math.max(1,x)||k1>1e6) break; b = 1/(b-a); if(!isFinite(b)) break; }
+  return (k1>1e6?'≈ ':'')+sg+h1+'/'+k1;
+}
+const fmt = (x, f=FR) => f ? frac(x) : dec(x);
+
+function renderHistory(){
+  const hList = $('#histList'); if(!hList) return;
+  const filter = ($('#histSearch')?.value || '').toLowerCase();
+  const items = hist.filter(h => h.q.toLowerCase().includes(filter) || h.ans.toLowerCase().includes(filter));
+  if(!items.length){ hList.innerHTML = `<div class="sub p-3 text-center">No history records available</div>`; return; }
+  hList.innerHTML = items.map((h, i) => `
+    <div class="gl p-3 flex justify-between items-center cursor-pointer hover:border-amber-400" onclick="ex='${h.q}';cp=ex.length;sw('calc')">
+      <div><div class="font-bold text-sm" style="color:var(--a)">${h.q}</div><div class="sub" style="font-size:10px">${h.time}</div></div>
+      <div class="font-bold text-base" style="color:var(--d)">= ${h.ans}</div>
+    </div>
+  `).join('');
+}
+
+let currentKeypadMode = 'basic';
+const BASIC_KEYPAD_LAYOUT = [['AC', '⌫', '%', '÷'], ['7', '8', '9', '×'], ['4', '5', '6', '−'], ['1', '2', '3', '+'], ['!#1', '0', '.', '=']];
+const SCIENTIFIC_KEYPAD_LAYOUT = [['sin', 'cos', 'tan', 'asin', 'acos'], ['sinh', 'cosh', 'tanh', 'log', 'ln'], ['xʸ', '√', 'cbrt', 'n!', '1/x'], ['π', 'e', 'abs', 'Ans', 'DEG'], ['123', '0', '.', '(', ')']];
+
+function renderKeypad(){
+  const kp = $('#kp');
+  if(currentKeypadMode === 'basic'){
+    kp.classList.remove('sci-mode');
+    kp.innerHTML = BASIC_KEYPAD_LAYOUT.map(r => r.map(k => {
+      if(k === '!#1') return `<button class="k soft-toggle" data-k="TOGGLE_MODE"><span style="font-size:12px; font-weight:800; color:var(--d)">fx</span></button>`;
+      const cls = /^[÷×−+]$/.test(k) ? 'op' : k === '=' ? 'eq' : /^[0-9.]$/.test(k) ? '' : 'fn';
+      return `<button class="k ${cls}" data-k="${k}">${k}</button>`;
+    }).join('')).join('');
+  } else {
+    kp.classList.add('sci-mode');
+    kp.innerHTML = SCIENTIFIC_KEYPAD_LAYOUT.map(r => r.map(k => {
+      if(k === '123') return `<button class="k soft-toggle" data-k="TOGGLE_MODE"><i data-lucide="calculator" class="w-3.5 h-3.5"></i> 123</button>`;
+      const [l, v] = Array.isArray(k) ? k : [k, k];
+      const cls = /^[0-9.()]$/.test(v) ? '' : 'fn';
+      return `<button class="k ${cls} text-xs" data-k="${v}">${l}</button>`;
+    }).join('')).join('');
+  }
+  refreshIcons();
+}
+
+function render(){
+  const d = $('#disp');
+  d.innerHTML = [...ex].map((c,i) => (i === cp ? '<i class="cr"></i>' : '') + `<span>${c.replace(/</g,'&lt;')}</span>`).join('') + (cp >= ex.length ? '<i class="cr"></i>' : '');
+  const v = ev(ex); const rs = $('#res');
+  if(v == null){ rs.textContent = /[÷\/]\s*0(?![.\d])/.test(ex) ? '⚠ Cannot divide by zero' : (ex.trim() && ex.trim() !== '(' ? '⚠ Check expression' : ''); }
+  else rs.textContent = '= ' + fmt(v);
+  $('#degSt').textContent = deg ? 'DEG' : 'RAD';
+}
+
+const ins = s => {
+  if(s==='xʸ') s='^'; if(s==='n!') s='!'; if(s==='1/x') s='1/';
+  if(['sin','cos','tan','asin','acos','atan','asinh','acosh','atanh','sinh','cosh','tanh','log','ln','√','cbrt','abs'].includes(s)) s += '(';
+  ex = ex.slice(0, cp) + s + ex.slice(cp); cp += s.length;
+};
+
+function key(k){
+  if(k === 'TOGGLE_MODE'){ currentKeypadMode = currentKeypadMode === 'basic' ? 'scientific' : 'basic'; renderKeypad(); return; }
+  const v = ev(ex);
+  if(k === 'AC'){ ex = ''; cp = 0; }
+  else if(k === '⌫'){ if(cp > 0){ ex = ex.slice(0, cp - 1) + ex.slice(cp); cp--; } }
+  else if(k === '='){
+    if(v != null){
+      const resStr = fmt(v); lastAns = v;
+      hist.unshift({ q: ex, ans: resStr, time: new Date().toLocaleTimeString() });
+      if(hist.length > 50) hist.pop();
+      try{ localStorage.setItem('ur_hist', JSON.stringify(hist)); }catch(e){}
+      renderHistory(); ex = dec(v); cp = ex.length;
+    }
+  }
+  else if(k === 'DEG'){ deg = !deg; }
+  else ins(k);
+  render();
+}
+
+$('#p-calc').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if(b) key(b.dataset.k); });
+$('#btnDec').onclick = () => { FR = false; $('#btnDec').classList.add('on'); $('#btnFrac').classList.remove('on'); render(); };
+$('#btnFrac').onclick = () => { FR = true; $('#btnFrac').classList.add('on'); $('#btnDec').classList.remove('on'); render(); };
+
+const ALL_TABS = [
+  {id:'calc', name:'Calculator', cat:'core', icon:'calculator'},
+  {id:'prob', name:'Probability', cat:'studios', icon:'pie-chart'},
+  {id:'geo', name:'Geometry', cat:'studios', icon:'compass'},
+  {id:'stats', name:'Stats', cat:'studios', icon:'bar-chart-2'},
+  {id:'eq', name:'Equations', cat:'studios', icon:'variable'},
+  {id:'calc-studio', name:'Calculus', cat:'studios', icon:'sigma'},
+  {id:'graph', name:'Graphs', cat:'studios', icon:'line-chart'},
+  {id:'mat', name:'Matrices', cat:'studios', icon:'grid'},
+  {id:'conv', name:'Convert', cat:'tools', icon:'repeat'},
+  {id:'hist', name:'History', cat:'tools', icon:'history'}
+];
+
+const PANEL = {
+  calc:'p-calc', prob:'p-prob', geo:'p-geo', stats:'p-stats', eq:'p-eq',
+  'calc-studio':'p-calc-studio', graph:'p-graph', mat:'p-mat', conv:'p-conv',
+  hist:'p-hist', theme:'p-theme', about:'p-about', rate:'p-rate'
+};
+
+function renderTabs(filterCat='all'){
+  const tContainer = $('#tabs');
+  const filtered = filterCat === 'all' ? ALL_TABS : ALL_TABS.filter(t => t.cat === filterCat);
+  tContainer.innerHTML = filtered.map(t => `<button class="tb" data-m="${t.id}"><i data-lucide="${t.icon}" class="w-3.5 h-3.5"></i> ${t.name}</button>`).join('');
+  refreshIcons();
+}
+
+function sw(m){
+  $$('.tb').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  const pid = PANEL[m];
+  $$('.panel').forEach(p => p.classList.toggle('hid', p.id !== pid));
+  if(m === 'theme') renderThemePanel();
+  if(m === 'calc') render();
+  if(m === 'hist') renderHistory();
+  setupGlassSelects();
+}
+
+$('#navCats').onclick = e => {
+  const b = e.target.closest('[data-cat]'); if(!b) return;
+  $$('#navCats button').forEach(x => x.classList.toggle('on', x === b));
+  renderTabs(b.dataset.cat);
+  if($('#tabs button')) sw($('#tabs button').dataset.m);
+};
+
+$('#tabs').onclick = e => { const b = e.target.closest('[data-m]'); if(b) sw(b.dataset.m); };
+$('#menu').onclick = e => { const b = e.target.closest('[data-go]'); if(b){ $('#menu').classList.add('hid'); sw(b.dataset.go); } };
+$('#mbtn').onclick = () => $('#menu').classList.toggle('hid');
+$('#soundToggle').onclick = () => { soundEnabled = !soundEnabled; $('#sndSt').textContent = soundEnabled ? 'ON' : 'OFF'; };
+
+let attachedImage = null;
+
+// ===================== UR INTELLIGENCE · MEMORY, CHAT & TUTOR =====================
+// Chats are saved in this browser (localStorage), so UR AI remembers earlier conversations.
+// BACKEND HOOK: set backendUrl to your API route (POST {message, image, history} -> {reply}).
+// Leave it empty for the fully OFFLINE tutor and the offline quiz banks.
+const AI_CONFIG = { backendUrl: '/api/chat', timeoutMs: 20000 };
+const AI_PRAISE = ['Excellent question! 🌟', 'Great thinking! 👏', 'Love the curiosity! 🚀', "You're learning fast! ✨", 'Wonderful question! 💡'];
+const aiPraise = () => AI_PRAISE[Math.floor(Math.random() * AI_PRAISE.length)];
+const GREET_RE = /^(hi+|hello|hey|hlo|salam|assalam|aoa|good (morning|evening|afternoon)|kaise ho|kya haal)\b/i;
+const AGAIN_RE = /samajh|samjh|dobara|phir se|again|explain|samjhao|repeat|not clear|confus|don'?t understand|dont understand/i;
+const QUIZ_RE = /\bquiz(zes)?\b/i;
+const GUIDE_TEXT = '✨ ApexCalc Ai Guide\n1. 🧮 Calculator: type numbers, tap fx for scientific functions.\n2. 📐 Geometry: pick a shape (Circle, Square, Triangle...) and its diagram animates with radius or side labels.\n3. 🎲 Probability: the visual shows favorable vs total outcomes.\n4. 📝 Quiz: tap Quiz, type any topic, choose Simple or Full, then get instant feedback.\n5. 🧠 UR AI remembers your chats. Say "samjhao" to hear the last solution again.';
+
+// ---------- Saved chats (memory) ----------
+let chats = [];
+try { chats = JSON.parse(localStorage.getItem('ur_chats') || '[]'); } catch(e){ chats = []; }
+let curChat = chats[0] || null;
+const saveChats = () => { try { localStorage.setItem('ur_chats', JSON.stringify(chats.slice(0, 30))); } catch(e){} };
+function currentChat(){
+  if(!curChat){ curChat = { id: Date.now(), title: 'New chat', msgs: [], mem: {} }; chats.unshift(curChat); saveChats(); }
+  if(!curChat.mem) curChat.mem = {};
+  return curChat;
+}
+function startNewChat(){
+  if(curChat && !curChat.msgs.length){ renderChat(); return; }
+  curChat = null; currentChat(); renderChat();
+}
+
+// ---------- Rendering helpers ----------
+const copyText = async t => {
+  try { await navigator.clipboard.writeText(t); return true; }
+  catch(e){
+    const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch(_){}
+    ta.remove(); return ok;
+  }
+};
+function addMsg(cls, text, imgSrc){
+  const chat = $('#chat'); const d = document.createElement('div'); d.className = cls;
+  if(text) d.appendChild(document.createTextNode(text));
+  if(imgSrc){ const im = new Image(); im.src = imgSrc; d.appendChild(im); }
+  chat.appendChild(d); chat.scrollTop = chat.scrollHeight; return d;
+}
+function bubble(m, img){
+  const d = addMsg(m.role === 'user' ? 'ub' : 'ans gl', m.text, img);
+  const row = document.createElement('div'); row.className = 'msg-tools';
+  const cp = document.createElement('button'); cp.className = 'mini-btn'; cp.textContent = 'Copy';
+  cp.onclick = async () => { await copyText(m.text || ''); cp.textContent = 'Copied ✓'; setTimeout(() => cp.textContent = 'Copy', 1400); };
+  row.appendChild(cp); d.appendChild(row);
+  return d;
+}
+function renderChat(){
+  const c = currentChat(), chatEl = $('#chat');
+  chatEl.innerHTML = '';
+  if(!c.msgs.length) addMsg('ans gl', "Hello! 👋 I'm UR AI, your math buddy. Ask me to solve a problem, explain a formula, or tap Quiz to test yourself on any topic. Your chats are saved on this device.");
+  else c.msgs.forEach(m => bubble(m));
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+function pushMsg(role, text, img){
+  const c = currentChat();
+  c.msgs.push({ role, text });
+  if(role === 'user' && c.title === 'New chat') c.title = text.slice(0, 40);
+  if(c.msgs.length > 200) c.msgs.splice(0, c.msgs.length - 200);
+  saveChats();
+  return bubble({ role, text }, img);
+}
+
+// ---------- Open / close / header buttons ----------
+$('#aib').onclick = () => { $('#ai').classList.remove('hid'); renderChat(); };
+$('#aix').onclick = () => $('#ai').classList.add('hid');
+$('#helpBtn').onclick = () => {
+  $('#ai').classList.remove('hid'); renderChat();
+  pushMsg('user', 'Help & Navigation Guide');
+  setTimeout(() => pushMsg('ai', GUIDE_TEXT), 300);
+};
+$('#chatNew').onclick = () => startNewChat();
+$('#chatHist').onclick = () => { renderChatList(); $('#histOv').classList.remove('hid'); };
+$('#histX').onclick = () => $('#histOv').classList.add('hid');
+$('#chatDel').onclick = () => {
+  if(!confirm('Delete this whole chat? This cannot be undone.')) return;
+  chats = chats.filter(c => c !== curChat); curChat = chats[0] || null; saveChats();
+  renderChat();
+};
+$('#imgFile').onchange = e => {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => { attachedImage = ev.target.result; };
+  reader.readAsDataURL(file);
+};
+$('#q').addEventListener('keydown', e => { if(e.key === 'Enter') $('#send').click(); });
+
+function renderChatList(){
+  const list = $('#chatList');
+  if(!chats.length){ list.innerHTML = '<div class="sub p-3 text-center">No saved chats yet</div>'; return; }
+  list.innerHTML = chats.map(c => `
+    <div class="gl p-3 flex justify-between items-center gap-2">
+      <button class="text-left flex-1 min-w-0" data-open="${c.id}">
+        <div class="font-bold text-sm truncate" style="color:var(--a)">${esc(c.title)}</div>
+        <div class="sub" style="font-size:10px">${c.msgs.length} messages · ${esc(c.mem && c.mem.problem ? 'last: ' + c.mem.problem : 'no problem yet')}</div>
+      </button>
+      <button class="mini-btn" data-del="${c.id}">Delete</button>
+    </div>`).join('');
+}
+$('#chatList').onclick = e => {
+  const o = e.target.closest('[data-open]'), d = e.target.closest('[data-del]');
+  if(o){ curChat = chats.find(c => String(c.id) === o.dataset.open) || null; $('#histOv').classList.add('hid'); renderChat(); }
+  else if(d){
+    if(!confirm('Delete this chat?')) return;
+    chats = chats.filter(c => String(c.id) !== d.dataset.del);
+    if(curChat && String(curChat.id) === d.dataset.del) curChat = chats[0] || null;
+    saveChats(); renderChatList();
+  }
+};
+
+// ---------- Offline tutor (uses memory of the last problem) ----------
+const AI_TOPICS = [
+  { name: 'Quadratic equations', re: /quadratic|ax\^?2|x\^?2/i, text: 'Quadratic equation ax² + bx + c = 0:\n1. Discriminant D = b² − 4ac\n2. D > 0 → two real roots\n3. D = 0 → one repeated root\n4. D < 0 → two complex roots\n5. Roots: x = (−b ± √D) / 2a\nOpen the Equations studio to see every step.' },
+  { name: "Bayes' theorem", re: /bayes/i, text: "Bayes' Theorem: P(A|B) = P(B|A)·P(A) / P(B)\nwhere P(B) = P(B|A)·P(A) + P(B|A′)·P(A′).\nOpen Probability → Bayes and enter the three values." },
+  { name: 'Permutations & combinations', re: /ncr|npr|permutation|combination/i, text: 'nCr = n! / (r!·(n−r)!): order does NOT matter.\nnPr = n! / (n−r)!: order DOES matter.\nOpen Probability → Combinatorics to compute them instantly.' },
+  { name: 'Hyperbolic functions', re: /sinh|cosh|tanh/i, text: 'sinh x = (eˣ − e⁻ˣ) / 2\ncosh x = (eˣ + e⁻ˣ) / 2\ntanh x = sinh x / cosh x\nIn fx mode, tap sinh and type a value, e.g. sinh(1).' },
+  { name: 'Matrices', re: /matri|determinant|inverse/i, text: 'For a 2×2 matrix [[a, b], [c, d]]:\ndet = ad − bc\ninverse = (1/det)·[[d, −b], [−c, a]]\nUse the Matrix studio for 3×3 and step-by-step working.' },
+  { name: 'Derivatives', re: /deriv|differentiat|slope/i, text: 'A derivative gives the slope of a function.\nPower rule: d/dx xⁿ = n·xⁿ⁻¹\nOpen the Calculus studio, enter f(x), and check f′ at any point.' },
+  { name: 'App navigation', re: /help|guide|navigat|feature|how to use/i, text: 'Quick map 🧭\n• Calculator: type numbers, tap fx for scientific functions.\n• Studios: Probability, Equations, Statistics, Matrices, Calculus.\n• Tap Quiz for MCQs on any topic.' }
+];
+
+function offlineTutor(msg){
+  const c = currentChat(), mem = c.mem;
+  const m = String(msg || '').trim(), words = m.split(/\s+/).length;
+
+  // 1. Greetings continue the conversation instead of restarting it
+  if(GREET_RE.test(m) && words <= 6){
+    return mem.problem
+      ? `Welcome back! 👋 We were working on: ${mem.problem}.\nWant me to explain it again, or shall we start a new problem?`
+      : 'Hello! 👋 Send me a problem to solve, or tap Quiz to test yourself on a topic.';
+  }
+  // 2. "Samajh nahi aaya" → re-explain the previous problem from memory
+  if(words <= 8 && AGAIN_RE.test(m) && mem.steps){
+    return `Sure, here is the last problem again, step by step 🧠\nGiven / Find: ${mem.problem}\n\n${mem.steps.join('\n')}`;
+  }
+  // 3. Equations: Given / Find with full steps
+  if(m.includes('=') && /x/i.test(m)){
+    try {
+      const lines = solveSingle(m);
+      mem.problem = m; mem.steps = lines;
+      return `${aiPraise()}\nGiven: ${m}\nFind: the value(s) of x\n\n${lines.join('\n')}`;
+    } catch(err){ /* not a valid equation, try the next rule */ }
+  }
+  // 4. Arithmetic expressions
+  const expr = m.replace(/^(what is|what's|calculate|compute|solve|evaluate)\s*/i, '').replace(/[=?\s]+$/, '').trim();
+  if(expr && /\d/.test(expr) && /^[0-9a-zA-Z+\-−×÷*\/^().!%π√\s]+$/.test(expr)){
+    const v = ev(expr);
+    if(v != null){
+      const steps = [
+        `Step 1: Read the expression → ${expr}`,
+        'Step 2: Apply BODMAS: brackets, powers, then × and ÷, then + and −',
+        `✅ Answer: ${expr} = ${fmt(v)}`
+      ];
+      mem.problem = expr; mem.steps = steps;
+      return `${aiPraise()}\nGiven: ${expr}\nFind: its value\n\n${steps.join('\n')}`;
+    }
+  }
+  // 5. Formula topics
+  const hit = AI_TOPICS.find(t => t.re.test(m));
+  if(hit){ mem.problem = hit.name; mem.steps = hit.text.split('\n'); return `${aiPraise()}\n\n${hit.text}`; }
+
+  const last = mem.problem ? ` We were last on "${mem.problem}". Type "samjhao" to see it again.` : '';
+  return `${aiPraise()} I'm in offline mode, so I can solve calculations, equations and explain key formulas. Try "2^10 + sin(30)" or "x^2 - 5x + 6 = 0". Tap Quiz to test any topic.${last}`;
+}
+
+async function askBackend(message, image){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), AI_CONFIG.timeoutMs);
+  // Send the earlier conversation (excluding the message just typed) so the online AI keeps context
+  const history = currentChat().msgs.slice(-11, -1).map(m => ({ role: m.role === 'user' ? 'user' : 'ai', text: m.text }));
+  try {
+    const res = await fetch(AI_CONFIG.backendUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, image: image || null, history }),
+      signal: ctrl.signal
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if(!data || typeof data.reply !== 'string') throw new Error('Unexpected response');
+    return data.reply;
+  } finally { clearTimeout(timer); }
+}
+
+async function getAIReply(message, image){
+  if(AI_CONFIG.backendUrl){
+    try { return await askBackend(message, image); }
+    catch(err){ return `${offlineTutor(message)}\n\n(ℹ️ Online assistant is unavailable right now, so I answered offline.)`; }
+  }
+  if(image) return '📸 Photo analysis needs the online backend. Type the problem instead and I will help you offline!';
+  return offlineTutor(message);
+}
+
+$('#send').onclick = async () => {
+  const q = $('#q').value.trim(); if(!q && !attachedImage) return;
+  const img = attachedImage;
+  attachedImage = null; $('#q').value = '';
+  pushMsg('user', q || '📸 Photo', img);
+  if(!img && QUIZ_RE.test(q)){ openQuizFromChat(q); return; }
+  const waiting = addMsg('ans gl typing', 'UR AI is thinking… 🤔');
+  let reply;
+  try { reply = await getAIReply(q, img); }
+  catch(err){ reply = '⚠️ Something went wrong, but your calculator is fine. Please try again.'; }
+  waiting.remove();
+  pushMsg('ai', reply);
+};
+$$('.ai-chip[data-prompt]').forEach(chip => {
+  chip.onclick = () => { $('#q').value = chip.dataset.prompt; $('#send').click(); };
+});
+$('#quizOpen').onclick = () => openQuiz();
+
+// ===================== UR QUIZ · TOPIC MCQ ENGINE =====================
+// Each question: [question, [4 options], index of correct option, step-by-step solution].
+// Options are shuffled every time, and every option belongs to the same topic.
+let quizLevel = 'simple', quiz = null;
+const QUIZ_BANK = [
+  { name: 'Quadratic Equations', re: /quadratic|discriminant|parabola|vertex|roots?\b|x\^?2|x²/i, qs: [
+    ['What are the roots of x² − 5x + 6 = 0?', ['x = 2 and x = 3', 'x = −2 and x = −3', 'x = 1 and x = 6', 'x = 2 and x = −3'], 0, 'Step 1: Find two numbers with product 6 and sum −5. They are −2 and −3.\nStep 2: x² − 5x + 6 = (x − 2)(x − 3) = 0\nStep 3: x − 2 = 0 or x − 3 = 0\n✅ Roots: x = 2 and x = 3'],
+    ['What is the discriminant of 2x² + 3x + 5 = 0?', ['−31', '−49', '31', '49'], 0, 'D = b² − 4ac = 3² − 4(2)(5) = 9 − 40 = −31.\nSince D < 0, the roots are complex.'],
+    ['For 3x² − 6x + 1 = 0, what is the sum of the roots?', ['2', '−2', '1/3', '−6'], 0, 'Sum of roots = −b / a = −(−6) / 3 = 2.'],
+    ['For 2x² + 8x − 10 = 0, what is the product of the roots?', ['−5', '5', '−4', '−10'], 0, 'Product of roots = c / a = −10 / 2 = −5.'],
+    ['What is the x-coordinate of the vertex of y = x² − 4x + 1?', ['2', '−2', '4', '1'], 0, 'Vertex x = −b / 2a = −(−4) / (2·1) = 4 / 2 = 2.'],
+    ['If the discriminant D > 0, how many real roots does the equation have?', ['Two distinct real roots', 'One repeated real root', 'No real roots', 'Infinitely many roots'], 0, 'D > 0 means the parabola crosses the x-axis at two distinct points, so there are two distinct real roots.'],
+    ['Which formula gives the roots of ax² + bx + c = 0?', ['x = (−b ± √(b² − 4ac)) / 2a', 'x = (b ± √(b² + 4ac)) / a', 'x = −c / b', 'x = (−b ± a) / 2c'], 0, 'The quadratic formula is x = (−b ± √(b² − 4ac)) / 2a. It works for any quadratic with a ≠ 0.'],
+    ['When D = 0, what kind of roots does a quadratic have?', ['Two equal real roots, x = −b / 2a', 'Two complex roots', 'No solution at all', 'Two roots with opposite signs'], 0, 'When D = 0 the square-root term vanishes, so x = −b / 2a is one repeated real root. The parabola just touches the x-axis.'],
+    ['Which expression is equal to (x + 4)²?', ['x² + 8x + 16', 'x² + 16', 'x² + 4x + 16', 'x² + 8x + 4'], 0, '(x + 4)² = x² + 2·4·x + 4² = x² + 8x + 16.'],
+    ['What are the solutions of x² = 49?', ['x = ±7', 'x = 7 only', 'x = 49', 'x = ±24.5'], 0, 'Take the square root of both sides: x = ±√49 = ±7. Both 7 and −7 satisfy the equation.']
+  ]},
+  { name: 'Probability', re: /probabilit|coin|dice|\bdie\b|\bcards?\b|bayes|odds|chance|event/i, qs: [
+    ['What is the probability of getting a head when a fair coin is tossed once?', ['1/2', '1/4', '1/3', '1'], 0, 'A fair coin has 2 equally likely outcomes. Favorable = 1, total = 2, so P(head) = 1/2.'],
+    ['What is the probability of drawing an ace from a standard 52-card deck?', ['1/13', '1/4', '4/13', '1/52'], 0, 'There are 4 aces among 52 cards.\nP(ace) = favorable / total = 4 / 52 = 1/13.'],
+    ['What is the probability of rolling an even number on a fair six-sided die?', ['1/3', '1/2', '2/3', '1/6'], 1, 'Even outcomes: 2, 4, 6, so 3 favorable.\nTotal outcomes = 6.\nP(even) = 3/6 = 1/2.'],
+    ['If P(A) = 0.3, what is P(A′), the complement of A?', ['0.7', '0.3', '0.5', '1.3'], 0, 'P(A′) = 1 − P(A) = 1 − 0.3 = 0.7.'],
+    ['P(A) = 0.5, P(B) = 0.4 and P(A ∩ B) = 0.2. What is P(A ∪ B)?', ['0.7', '0.9', '0.2', '0.1'], 0, 'P(A ∪ B) = P(A) + P(B) − P(A ∩ B) = 0.5 + 0.4 − 0.2 = 0.7.'],
+    ['What is the probability that the sum of two fair dice is 7?', ['1/6', '1/12', '7/12', '1/36'], 0, 'Outcomes with sum 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1), so 6 outcomes.\nTotal outcomes = 6 × 6 = 36.\nP = 6/36 = 1/6.'],
+    ['Which formula defines conditional probability P(A | B)?', ['P(A ∩ B) / P(B)', 'P(A) / P(A ∩ B)', 'P(A) + P(B)', 'P(A ∩ B) × P(B)'], 0, 'P(A | B) = P(A ∩ B) / P(B), provided P(B) > 0.'],
+    ['Which theorem updates a probability when new evidence is observed?', ["Bayes' theorem", "Pascal's triangle", 'Central limit theorem', 'Law of large numbers'], 0, "Bayes' theorem: P(A | B) = P(B | A)·P(A) / P(B). It updates a prior probability using new evidence B."],
+    ['If A and B are mutually exclusive, what is P(A ∪ B)?', ['P(A) + P(B)', 'P(A) × P(B)', 'P(A) − P(B)', 'P(A) / P(B)'], 0, 'Mutually exclusive events cannot happen together, so P(A ∩ B) = 0.\nTherefore P(A ∪ B) = P(A) + P(B).'],
+    ['How many outcomes are in the sample space when two coins are tossed?', ['4', '2', '3', '8'], 0, 'Each coin has 2 outcomes, so 2 × 2 = 4 outcomes: HH, HT, TH, TT.']
+  ]},
+  { name: 'Permutations & Combinations', re: /permutation|combination|ncr|npr|factorial|arrangement|\bchoose\b|committee|\bways?\b/i, qs: [
+    ['What is 5!?', ['120', '60', '25', '100'], 0, '5! = 5 × 4 × 3 × 2 × 1 = 120.'],
+    ['What is C(5, 2)?', ['10', '20', '7', '25'], 0, 'C(5,2) = 5! / (2! · 3!) = 120 / (2 · 6) = 10.'],
+    ['What is P(5, 2), the number of permutations of 2 items from 5?', ['20', '10', '25', '7'], 0, 'P(5,2) = 5! / (5 − 2)! = 120 / 6 = 20.\nOrder matters, so this is larger than C(5,2).'],
+    ['How many ways can the letters of the word "CAT" be arranged?', ['6', '3', '9', '27'], 0, 'All 3 letters are different, so there are 3! = 3 × 2 × 1 = 6 arrangements.'],
+    ['Which formula gives nCr?', ['n! / (r! · (n − r)!)', 'n! / (n − r)!', 'nʳ', 'r! / n!'], 0, 'nCr = n! / (r! · (n − r)!). Order does not matter for combinations.'],
+    ['In how many ways can 4 people be seated around a round table?', ['6', '4', '24', '12'], 0, 'Circular arrangements of n people = (n − 1)! = 3! = 6.'],
+    ['A committee of 3 is chosen from 8 people. How many committees are possible?', ['56', '336', '24', '112'], 0, 'Order does not matter, so C(8,3) = 8! / (3! · 5!) = (8 · 7 · 6) / (3 · 2 · 1) = 56.'],
+    ['Which term describes an arrangement where order matters?', ['Permutation', 'Combination', 'Probability', 'Mean'], 0, 'A permutation counts ordered arrangements. A combination counts selections where order does not matter.'],
+    ['A pizza shop offers 6 toppings. In how many ways can you choose 2 toppings?', ['15', '12', '30', '36'], 0, 'Order does not matter, so C(6,2) = 6! / (2! · 4!) = 15.'],
+    ['What is 0!?', ['1', '0', 'Undefined', '0.5'], 0, 'By definition 0! = 1. It counts the arrangements of zero objects, and there is exactly one way to do nothing.']
+  ]},
+  { name: 'Statistics', re: /statistic|\bmean\b|median|\bmode\b|\brange\b|variance|standard deviation|average|\bdata\b|deviation/i, qs: [
+    ['What is the mean of 2, 4, 6 and 8?', ['5', '4', '6', '20'], 0, 'Mean = sum / count = (2 + 4 + 6 + 8) / 4 = 20 / 4 = 5.'],
+    ['What is the median of 3, 7, 1, 9 and 5?', ['5', '7', '3', '6'], 0, 'Sort the data: 1, 3, 5, 7, 9. The middle value (3rd of 5) is 5.'],
+    ['What is the mode of 2, 3, 3, 5, 7, 3?', ['3', '5', '2', '7'], 0, 'The mode is the value that occurs most often. The number 3 appears three times.'],
+    ['What is the range of 10, 4, 15 and 8?', ['11', '5', '10', '19'], 0, 'Range = maximum − minimum = 15 − 4 = 11.'],
+    ['Which measure of centre is most affected by an extreme outlier?', ['Mean', 'Median', 'Mode', 'Frequency'], 0, 'The mean uses every value in its sum, so one extreme value pulls it strongly. The median depends only on the middle position.'],
+    ['What is the median of 1, 3, 5 and 7?', ['4', '3', '5', '6'], 0, 'With an even count, the median is the average of the two middle values: (3 + 5) / 2 = 4.'],
+    ['When is the standard deviation of a data set equal to zero?', ['When all values are equal', 'When all values are different', 'When the mean is zero', 'When there are only two values'], 0, 'Standard deviation measures spread. If every value is the same, nothing varies, so SD = 0.'],
+    ['What is the sum of deviations of all values from the mean?', ['0', '1', 'n', 'The mean'], 0, 'Σ(x − mean) = Σx − n·mean = 0, because the mean balances the deviations.'],
+    ['Variance is the square of which measure?', ['Standard deviation', 'Range', 'Mean', 'Median'], 0, 'Variance = σ². So the standard deviation is √variance.'],
+    ['What is the mean of 2, 4, 4 and 6?', ['4', '3', '5', '6'], 0, 'Sum = 2 + 4 + 4 + 6 = 16. Mean = 16 / 4 = 4.']
+  ]},
+  { name: 'Geometry', re: /geometry|circle|triangle|\barea\b|perimeter|radius|square|rectangle|sphere|cylinder|pythag|hypotenuse|angle/i, qs: [
+    ['What is the area of a circle with radius 3?', ['9π', '6π', '3π', '18π'], 0, 'A = πr² = π × 3² = 9π.'],
+    ['What is the circumference of a circle with radius 5?', ['10π', '5π', '25π', '20π'], 0, 'C = 2πr = 2π × 5 = 10π.'],
+    ['A right triangle has legs 3 and 4. What is the hypotenuse?', ['5', '7', '6', '12'], 0, 'Pythagoras: c² = 3² + 4² = 9 + 16 = 25, so c = 5.'],
+    ['What is the sum of the interior angles of a triangle?', ['180°', '360°', '90°', '270°'], 0, 'The interior angles of any triangle add up to 180°.'],
+    ['What is the area of a triangle with base 6 and height 4?', ['12', '24', '10', '6'], 0, 'A = ½ × base × height = ½ × 6 × 4 = 12.'],
+    ['What is the area of a square with side 7?', ['49', '28', '14', '7'], 0, 'A = side² = 7² = 49.'],
+    ['What is the volume of a sphere with radius 3?', ['36π', '12π', '27π', '4π'], 0, 'V = (4/3)πr³ = (4/3)π × 27 = 36π.'],
+    ['What is the diameter of a circle with radius 6?', ['12', '6', '18', '3'], 0, 'Diameter d = 2r = 2 × 6 = 12.'],
+    ['What is the measure of a right angle?', ['90°', '45°', '180°', '60°'], 0, 'A right angle is exactly 90 degrees.'],
+    ['What is the lateral surface area of a cylinder with radius r and height h?', ['2πrh', 'πr²h', '2πr²', 'πr²'], 0, 'Lateral area = circumference × height = 2πr × h = 2πrh.']
+  ]}
+];
+
+const shuffle = arr => { for(let i = arr.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+function setQuizLevel(lv){ quizLevel = lv; $$('#quizLevel button').forEach(b => b.classList.toggle('on', b.dataset.lv === lv)); }
+function openQuiz(){
+  $('#quizOv').classList.remove('hid');
+  $('#quizSetup').classList.remove('hid'); $('#quizBody').innerHTML = '';
+  $('#quizTopicsHint').textContent = 'Offline topics: ' + QUIZ_BANK.map(t => t.name).join(' · ') + (AI_CONFIG.backendUrl ? '. Any other topic is generated by the online AI.' : '. Connect the online AI to get quizzes on any other topic.');
+  refreshIcons();
+}
+function openQuizFromChat(q){
+  const level = /\b(full|whole|complete|entire|poora|pura)\b/i.test(q) ? 'full' : /\b(simple|easy|basic|short)\b/i.test(q) ? 'simple' : null;
+  if(level) setQuizLevel(level);
+  $('#quizTopic').value = q.replace(/\b(make|create|give|me|a|an|the|quiz|quizzes|on|about|of|please|simple|easy|basic|short|full|whole|complete|entire|poora|pura|topic|test)\b/gi, ' ').replace(/\s+/g, ' ').trim();
+  openQuiz();
+  pushMsg('ai', `📝 Quiz ready${$('#quizTopic').value ? ' for "' + $('#quizTopic').value + '"' : ''}. Confirm the topic and tap Start Quiz.`);
+}
+async function onlineQuiz(topic, n){
+  try {
+    const prompt = `Create a ${n}-question multiple-choice quiz on "${topic}". Every option must belong to the same topic, with no unrelated options. Reply ONLY with JSON in this exact form: {"name":"Topic name","questions":[{"q":"question","options":["A","B","C","D"],"answer":0,"solution":"clear step-by-step solution"}]}`;
+    const reply = await askBackend(prompt, null);
+    const data = JSON.parse(reply.match(/\{[\s\S]*\}/)[0]);
+    const qs = data.questions
+      .filter(x => x.q && Array.isArray(x.options) && x.options.length === 4 && Number.isInteger(x.answer))
+      .map(x => [x.q, x.options, x.answer, x.solution || '']);
+    return qs.length ? { name: data.name || topic, qs } : null;
+  } catch(err){ return null; }
+}
+async function startQuiz(){
+  const topic = $('#quizTopic').value.trim();
+  if(!topic){ $('#quizTopic').focus(); return; }
+  const n = quizLevel === 'simple' ? 5 : 10;
+  $('#quizBody').innerHTML = '<div class="gl p-3 text-xs">Building your quiz… 🧠</div>';
+  let set = QUIZ_BANK.find(t => t.re.test(topic)) || null;
+  if(!set && AI_CONFIG.backendUrl) set = await onlineQuiz(topic, n);
+  if(!set || !set.qs.length){
+    $('#quizBody').innerHTML = `<div class="gl p-3 text-xs" style="line-height:1.7">I don't have an offline question bank for "${esc(topic)}". Offline topics: ${QUIZ_BANK.map(t => t.name).join(', ')}. For any other topic, connect the online AI backend.</div>`;
+    return;
+  }
+  const picked = shuffle([...set.qs]).slice(0, n).map(([q, o, a, s]) => {
+    const order = shuffle(o.map((_, i) => i));
+    return { q, o: order.map(i => o[i]), a: order.indexOf(a), s };
+  });
+  quiz = { topic: set.name, qs: picked, i: 0, score: 0, locked: false };
+  $('#quizSetup').classList.add('hid');
+  renderQuestion();
+}
+function renderQuestion(){
+  if(quiz.i >= quiz.qs.length) return renderQuizEnd();
+  const Q = quiz, q = Q.qs[Q.i], pct = Math.round(Q.i / Q.qs.length * 100);
+  Q.locked = false;
+  $('#quizBody').innerHTML = `
+   <div class="flex justify-between sub"><span>${esc(Q.topic)} · Question ${Q.i + 1} of ${Q.qs.length}</span><span>Score ${Q.score}</span></div>
+   <div style="height:6px;border-radius:99px;background:rgba(255,255,255,0.1);overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--c),var(--d));transition:width .4s"></div></div>
+   <div class="gl p-4 font-bold text-sm" style="line-height:1.6">${esc(q.q)}</div>
+   <div class="flex flex-col gap-2" id="qOpts">${q.o.map((t, i) => `<button class="q-opt" data-i="${i}">${String.fromCharCode(65 + i)}.&nbsp; ${esc(t)}</button>`).join('')}</div>
+   <div id="qFeed" class="flex flex-col gap-2"></div>
+   <div class="flex gap-2"><button class="tb" id="qSol" style="display:none"><i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Show solution</button><button class="pb" id="qNext" disabled style="flex:1">Next →</button></div>`;
+  refreshIcons();
+  $('#qOpts').onclick = e => {
+    const btn = e.target.closest('[data-i]');
+    if(!btn || Q.locked) return;
+    Q.locked = true;
+    const right = +btn.dataset.i === q.a;
+    $$('#qOpts .q-opt')[q.a].classList.add('ok');
+    if(right){
+      btn.classList.add('ok'); Q.score++;
+      $('#qFeed').innerHTML = '<div class="ok font-bold text-sm">🎉 Correct! Great work.</div>';
+      launchFireworks();
+    } else {
+      btn.classList.add('bad');
+      $('#qFeed').innerHTML = '<div class="err font-bold text-sm">❌ Not quite. The correct answer is shown in green.</div>';
+    }
+    $('#qSol').style.display = 'inline-flex';
+    $('#qNext').disabled = false;
+  };
+  $('#qSol').onclick = () => {
+    $('#qFeed').insertAdjacentHTML('beforeend', `<div class="gl p-3 text-xs" style="line-height:1.7;white-space:pre-wrap"><b style="color:var(--d)">💡 Solution</b>\n${esc(q.s)}</div>`);
+    $('#qSol').style.display = 'none';
+  };
+  $('#qNext').onclick = () => { Q.i++; renderQuestion(); };
+}
+function fireworksShow(){
+  [0, 300, 650, 1000, 1400].forEach(d => setTimeout(() => launchFireworks(
+    fxCv.width * (0.2 + Math.random() * 0.6), fxCv.height * (0.2 + Math.random() * 0.4)), d));
+}
+function renderQuizEnd(){
+  const Q = quiz, pct = Math.round(Q.score / Q.qs.length * 100);
+  const msg = pct >= 80 ? 'Outstanding! You have mastered this topic. 🏆' : pct >= 50 ? 'Good effort! Review the solutions and try again.' : 'Keep practicing. Study the solutions, then retry.';
+  $('#quizBody').innerHTML = `
+   <div class="gl p-4 flex flex-col gap-3 text-center">
+    <div class="brand" style="font-size:24px">Quiz complete</div>
+    <div class="font-bold" style="color:var(--d);font-size:22px">${Q.score} / ${Q.qs.length} · ${pct}%</div>
+    <div class="sub" style="font-size:12px">${msg}</div>
+    <div class="flex gap-2 justify-center"><button class="pb" id="qRetry">Retry topic</button><button class="tb" id="qNewTopic">New topic</button></div>
+   </div>`;
+  fireworksShow();
+  $('#qRetry').onclick = () => startQuiz();
+  $('#qNewTopic').onclick = () => openQuiz();
+}
+$('#quizX').onclick = () => $('#quizOv').classList.add('hid');
+$('#quizStart').onclick = () => startQuiz();
+$('#quizTopic').addEventListener('keydown', e => { if(e.key === 'Enter') startQuiz(); });
+$('#quizLevel').onclick = e => { const b = e.target.closest('[data-lv]'); if(b) setQuizLevel(b.dataset.lv); };
+
+// ===================== STUDIO ENGINES (offline, pure JavaScript) =====================
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function showCard(id, title, lines){
+  const box = document.getElementById(id); if(!box) return;
+  box.innerHTML = `<div class="gl p-3 flex flex-col gap-1"><div class="font-bold text-sm" style="color:var(--d)">${esc(title)}</div>` +
+    lines.map(l => `<div class="text-xs" style="line-height:1.7;opacity:.95;white-space:pre-wrap">${esc(l)}</div>`).join('') + `</div>`;
+  refreshIcons();
+}
+function showError(id, msg){
+  showCard(id, '⚠️ Almost there!', [msg, 'Tip: use ^ for powers, * for multiplication, and check your brackets.']);
+}
+function safe(id, fn){
+  try { fn(); }
+  catch(err){ showError(id, (err && err.message) || 'Please check your input and try again.'); }
+}
+const parseNum = s => {
+  const t = String(s).trim(); if(!t) return NaN;
+  if(t.endsWith('%')) return Number(t.slice(0, -1)) / 100;
+  if(t.includes('/')){ const [p, q] = t.split('/').map(Number); return q ? p / q : NaN; }
+  return Number(t);
+};
+const inProb = p => p >= 0 && p <= 1;
+const choose = (n, k) => { let c = 1; for(let i = 1; i <= k; i++) c = c * (n - k + i) / i; return Math.round(c); };
+const permut = (n, r) => { let p = 1; for(let i = 0; i < r; i++) p *= (n - i); return p; };
+const factN = n => { if(n > 170) throw new Error('n! is too large to display above 170.'); let f = 1; for(let i = 2; i <= n; i++) f *= i; return f; };
+const polyText = a => {
+  const parts = [];
+  for(let i = a.length - 1; i >= 0; i--){
+    const v = a[i]; if(v === 0) continue;
+    const av = Math.abs(v), mag = (av === 1 && i > 0) ? '' : dec(av);
+    const xp = i === 0 ? '' : (i === 1 ? 'x' : `x^${i}`);
+    const body = mag + xp;
+    parts.push(parts.length === 0 ? (v < 0 ? '−' : '') + body : (v < 0 ? ' − ' : ' + ') + body);
+  }
+  return parts.length ? parts.join('') : '0';
+};
+
+// ---------- EQUATIONS ----------
+function parsePoly(str){
+  const s = String(str).replace(/\s+/g, '').replace(/−/g, '-').replace(/\*/g, '').replace(/-/g, '+-');
+  const c = {};
+  for(const t of s.split('+')){
+    if(!t) continue;
+    const m = /^(-?)(\d+\.?\d*|\.\d+)?(x(?:\^(\d+))?)?$/.exec(t);
+    if(!m || (m[2] === undefined && m[3] === undefined)) throw new Error(`I couldn't read the term "${t}". Use a polynomial in x, like 2x^2 + 3x − 5.`);
+    const sign = m[1] === '-' ? -1 : 1;
+    const k = m[3] ? (m[4] !== undefined ? +m[4] : 1) : 0;
+    const coef = sign * (m[2] !== undefined ? parseFloat(m[2]) : 1);
+    c[k] = (c[k] || 0) + coef;
+  }
+  return c;
+}
+function solveSingle(raw){
+  if(!String(raw).trim()) throw new Error('Please type an equation first, e.g. 2x^2 + 3x − 5 = 0.');
+  const parts = String(raw).split('=');
+  if(parts.length > 2) throw new Error('Please use only one "=" sign.');
+  const L = parsePoly(parts[0]);
+  const R = parts.length === 2 ? parsePoly(parts[1]) : {};
+  const keys = new Set([...Object.keys(L), ...Object.keys(R)]);
+  const c = {}; keys.forEach(k => { c[k] = (L[k] || 0) - (R[k] || 0); });
+  let dg = 0;
+  keys.forEach(k => { if(Math.abs(c[k]) > 1e-12) dg = Math.max(dg, +k); });
+  const a = [];
+  for(let i = 0; i <= dg; i++) a[i] = Math.abs(c[i] || 0) < 1e-12 ? 0 : c[i];
+  const lines = [`Step 1: Standard form → ${polyText(a)} = 0`];
+  if(dg === 0){
+    lines.push(a[0] === 0 ? '0 = 0 is always true, so every real number is a solution.' : `${dec(a[0])} = 0 is never true, so there is NO solution.`);
+    return lines;
+  }
+  if(dg === 1){
+    const x = -a[0] / a[1];
+    lines.push(`Step 2: Isolate x → x = −(${dec(a[0])}) / ${dec(a[1])}`, `✅ Answer: x = ${dec(x)}`);
+    return lines;
+  }
+  if(dg === 2){
+    const c0 = a[0], b = a[1], A2 = a[2];
+    const D = b * b - 4 * A2 * c0;
+    lines.push(`Step 2: a = ${dec(A2)}, b = ${dec(b)}, c = ${dec(c0)}`, `Step 3: Discriminant D = b² − 4ac = ${dec(D)}`);
+    if(D >= 0){
+      const sq = Math.sqrt(D);
+      const x1 = (-b + sq) / (2 * A2), x2 = (-b - sq) / (2 * A2);
+      lines.push('Step 4: x = (−b ± √D) / 2a', `✅ x₁ = ${dec(x1)},  x₂ = ${dec(x2)}`, D === 0 ? 'One repeated real root.' : 'Two distinct real roots.');
+    } else {
+      const re = -b / (2 * A2), im = Math.sqrt(-D) / (2 * Math.abs(A2));
+      lines.push('Step 4: D < 0, so the roots are complex.', `✅ x = ${dec(re)} ± ${dec(im)}i`);
+    }
+    return lines;
+  }
+  const f = x => { let s = 0; for(let i = a.length - 1; i >= 0; i--) s = s * x + a[i]; return s; };
+  const roots = [], L0 = -1000, U0 = 1000, N = 20000;
+  let px = L0, pf = f(L0);
+  for(let i = 1; i <= N; i++){
+    const x = L0 + (U0 - L0) * i / N, fx = f(x);
+    if(pf === 0) roots.push(px);
+    else if(pf * fx < 0){
+      let lo = px, hi = x;
+      for(let k = 0; k < 100; k++){ const mid = (lo + hi) / 2; if(f(lo) * f(mid) <= 0) hi = mid; else lo = mid; }
+      roots.push((lo + hi) / 2);
+    }
+    px = x; pf = fx;
+  }
+  lines.push(`Step 2: Degree ${dg}, solved numerically (scan from −1000 to 1000).`);
+  lines.push(roots.length ? '✅ Real roots: ' + roots.map(r => 'x ≈ ' + dec(r)).join(',  ') : 'No real roots found in that range.');
+  lines.push('Note: complex roots for degree 3 and above are not shown here.');
+  return lines;
+}
+function parseLin2(str){
+  const s = String(str).replace(/\s+/g, '').replace(/−/g, '-').replace(/\*/g, '').replace(/-/g, '+-');
+  const r = { x: 0, y: 0, c: 0 };
+  for(const t of s.split('+')){
+    if(!t) continue;
+    const m = /^(-?)(\d+\.?\d*|\.\d+)?([xy]?)$/.exec(t);
+    if(!m || (m[2] === undefined && m[3] === '')) throw new Error(`I couldn't read "${t}". Use linear terms like 2x + 3y.`);
+    const v = (m[1] === '-' ? -1 : 1) * (m[2] !== undefined ? parseFloat(m[2]) : 1);
+    if(m[3] === 'x') r.x += v; else if(m[3] === 'y') r.y += v; else r.c += v;
+  }
+  return r;
+}
+function solveSystem(e1, e2){
+  const sides = s => { const q = String(s).split('='); if(q.length !== 2) throw new Error('Each equation needs one "=" sign, e.g. 2x + 3y = 7.'); return [parseLin2(q[0]), parseLin2(q[1])]; };
+  const [L1, R1] = sides(e1), [L2, R2] = sides(e2);
+  const a1 = L1.x - R1.x, b1 = L1.y - R1.y, c1 = R1.c - L1.c;
+  const a2 = L2.x - R2.x, b2 = L2.y - R2.y, c2 = R2.c - L2.c;
+  const D = a1 * b2 - a2 * b1;
+  const lines = ['Step 1: Write as a·x + b·y = c', `   Eq1: ${dec(a1)}x + ${dec(b1)}y = ${dec(c1)}`, `   Eq2: ${dec(a2)}x + ${dec(b2)}y = ${dec(c2)}`, `Step 2: D = a₁b₂ − a₂b₁ = ${dec(D)}`];
+  if(Math.abs(D) < 1e-12){
+    const allZero = [a1, b1, a2, b2].every(v => Math.abs(v) < 1e-12);
+    const same = allZero ? (Math.abs(c1) < 1e-12 && Math.abs(c2) < 1e-12)
+      : (Math.abs(a1 * c2 - a2 * c1) < 1e-12 && Math.abs(b1 * c2 - b2 * c1) < 1e-12);
+    lines.push(same ? '✅ The lines coincide, so there are infinitely many solutions.' : '✅ The lines are parallel, so there is no solution.');
+    return lines;
+  }
+  const x = (c1 * b2 - c2 * b1) / D, y = (a1 * c2 - a2 * c1) / D;
+  lines.push(`Step 3: x = (c₁b₂ − c₂b₁) / D = ${dec(x)}`, `Step 4: y = (a₁c₂ − a₂c₁) / D = ${dec(y)}`, `✅ Answer: x = ${dec(x)},  y = ${dec(y)}`);
+  return lines;
+}
+let eqMode = 'single';
+$('#eqSeg').onclick = e => {
+  const b = e.target.closest('[data-eqt]'); if(!b) return;
+  eqMode = b.dataset.eqt;
+  $$('#eqSeg button').forEach(x => x.classList.toggle('on', x === b));
+  $('#eqSingleBox').classList.toggle('hid', eqMode !== 'single');
+  $('#eqSystemBox').classList.toggle('hid', eqMode !== 'system');
+};
+$('#eqSolveBtn').onclick = () => safe('eqResults', () => {
+  if(eqMode === 'single') showCard('eqResults', '✅ Solved step-by-step', solveSingle($('#eqInput').value));
+  else {
+    const e1 = $('#eqSys1').value, e2 = $('#eqSys2').value;
+    if(!e1.trim() || !e2.trim()) throw new Error('Please enter both equations.');
+    showCard('eqResults', '✅ System solved (Cramer\'s rule)', solveSystem(e1, e2));
+  }
+});
+
+// ---------- PROBABILITY ----------
+const PR_CORE = {
+  single: ['Favorable outcomes (f)', 'Total outcomes (n)'],
+  complement: ['P(A)'],
+  union: ['P(A)', 'P(B)', 'P(A ∩ B)'],
+  cond: ['P(A ∩ B)', 'P(B)'],
+  atleast: ['P(None)']
+};
+const PR_DIST = {
+  binomial: ['n (trials)', 'p (success prob.)', 'x (successes)'],
+  poisson: ['λ (mean rate)', 'x (events)'],
+  normal: ['μ (mean)', 'σ (std. dev.)', 'x (value)'],
+  uniform: ['a (minimum)', 'b (maximum)', 'x (value)']
+};
+const PROB_BOX = { core: 'probCoreBox', bayes: 'probBayesBox', comb: 'probCombBox', dist: 'probDistBox' };
+let probMode = 'core';
+function renderCoreInputs(){
+  const t = $('#prCoreType').value;
+  $('#prCoreInputs').innerHTML = (PR_CORE[t] || []).map(l => `<input class="in" data-pc placeholder="${esc(l)}" inputmode="decimal">`).join('');
+}
+function renderDistInputs(){
+  const t = $('#prDistType').value;
+  $('#prDistInputs').innerHTML = (PR_DIST[t] || []).map(l => `<input class="in" data-pd placeholder="${esc(l)}" inputmode="decimal">`).join('');
+}
+$('#prCoreType').addEventListener('change', renderCoreInputs);
+$('#prDistType').addEventListener('change', renderDistInputs);
+$('#probSeg').onclick = e => {
+  const b = e.target.closest('[data-prt]'); if(!b) return;
+  probMode = b.dataset.prt;
+  $$('#probSeg button').forEach(x => x.classList.toggle('on', x === b));
+  Object.entries(PROB_BOX).forEach(([k, id]) => document.getElementById(id).classList.toggle('hid', k !== probMode));
+};
+
+// ---------- ANIMATED VISUALS (offline canvas engine) ----------
+const themeC = (name, fb) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fb;
+const animJobs = {};
+function canvasCtx(id){
+  const cv = document.getElementById(id); if(!cv) return null;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 180;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  return { g, W, H };
+}
+// Plays draw(ctx, progress) from 0 to 1 with easing. A new animation on the same canvas replaces the old one.
+function animateCanvas(id, draw, dur = 900){
+  if(animJobs[id]) cancelAnimationFrame(animJobs[id]);
+  const t0 = performance.now();
+  const frame = now => {
+    const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
+    const c = canvasCtx(id); if(c) draw(c, e);
+    animJobs[id] = t < 1 ? requestAnimationFrame(frame) : null;
+  };
+  animJobs[id] = requestAnimationFrame(frame);
+}
+
+// Distribution charts (used by Probability → Distributions)
+function plotBars(xs, ys, hiIdx){
+  animateCanvas('prCanvas', ({ g, W, H }, e) => {
+    const pad = 24, max = Math.max(...ys, 1e-12), bw = (W - pad * 2) / xs.length;
+    g.font = '10px sans-serif'; g.textAlign = 'center';
+    xs.forEach((x, i) => {
+      const bh = (ys[i] / max) * (H - pad * 2) * e, bx = pad + i * bw;
+      g.fillStyle = i === hiIdx ? themeC('--d', '#fbbf24') : themeC('--c', '#8b5cf6');
+      g.fillRect(bx + 1, H - pad - bh, Math.max(1, bw - 2), bh);
+      if(xs.length <= 20 && e > 0.8){ g.fillStyle = themeC('--a', '#fff'); g.fillText(String(x), bx + bw / 2, H - 8); }
+    });
+  });
+}
+function plotCurve(f, x0, x1, hiX){
+  const N = 200, pts = []; let max = 1e-12;
+  for(let i = 0; i <= N; i++){ const x = x0 + (x1 - x0) * i / N, y = f(x); pts.push([x, y]); if(y > max) max = y; }
+  animateCanvas('prCanvas', ({ g, W, H }, e) => {
+    const pad = 24, X = x => pad + (x - x0) / (x1 - x0) * (W - 2 * pad), Y = y => H - pad - (y / max) * (H - 2 * pad);
+    const k = Math.max(1, Math.floor(e * N));
+    g.beginPath(); g.moveTo(X(x0), H - pad);
+    for(let i = 0; i <= k; i++) g.lineTo(X(pts[i][0]), Y(pts[i][1]));
+    g.lineTo(X(pts[k][0]), H - pad); g.closePath();
+    g.globalAlpha = 0.25; g.fillStyle = themeC('--c', '#8b5cf6'); g.fill(); g.globalAlpha = 1;
+    g.beginPath(); pts.slice(0, k + 1).forEach(([x, y], i) => i ? g.lineTo(X(x), Y(y)) : g.moveTo(X(x), Y(y)));
+    g.strokeStyle = themeC('--d', '#fbbf24'); g.lineWidth = 2; g.stroke();
+    if(hiX != null && hiX >= x0 && hiX <= x1 && e > 0.9){
+      g.beginPath(); g.setLineDash([4, 4]); g.moveTo(X(hiX), H - pad); g.lineTo(X(hiX), pad);
+      g.strokeStyle = themeC('--a', '#fff'); g.stroke(); g.setLineDash([]);
+    }
+  });
+}
+
+// Probability visuals: a proportion bar, and a Venn diagram for two events
+function visBar(g, W, H, e, p, left, right){
+  const x = 16, w = W - 32, h = 26, y = H / 2 - 13;
+  g.save();
+  g.globalAlpha = 0.3; g.fillStyle = themeC('--c', '#8b5cf6'); g.fillRect(x, y, w, h);
+  g.globalAlpha = 1; g.fillStyle = themeC('--d', '#fbbf24');
+  g.fillRect(x, y, w * Math.max(0, Math.min(1, p)) * e, h);
+  if(e > 0.8){
+    g.font = '12px sans-serif'; g.fillStyle = themeC('--a', '#fff');
+    g.textAlign = 'left'; g.fillText(left, x, y - 8);
+    g.textAlign = 'right'; g.fillText(right, x + w, y + h + 18);
+  }
+  g.restore();
+}
+function visVenn(g, W, H, e, label){
+  const r = Math.min(H * 0.36, W * 0.2), cy = H / 2 - 6, xa = W / 2 - r * 0.55, xb = W / 2 + r * 0.55;
+  g.save();
+  g.globalAlpha = 0.45 * e; g.fillStyle = themeC('--c', '#8b5cf6');
+  g.beginPath(); g.arc(xa, cy, r * e, 0, Math.PI * 2); g.fill();
+  g.fillStyle = themeC('--d', '#fbbf24');
+  g.beginPath(); g.arc(xb, cy, r * e, 0, Math.PI * 2); g.fill();
+  g.globalAlpha = 1;
+  if(e > 0.6){
+    const k = (e - 0.6) / 0.4;
+    g.save(); g.beginPath(); g.arc(xa, cy, r, 0, Math.PI * 2); g.clip();
+    g.globalAlpha = 0.6 * k; g.fillStyle = '#ffffff';
+    g.beginPath(); g.arc(xb, cy, r, 0, Math.PI * 2); g.fill();
+    g.restore();
+  }
+  if(e > 0.9){
+    g.font = '12px sans-serif'; g.fillStyle = themeC('--a', '#fff'); g.textAlign = 'center';
+    g.fillText('A', xa - r * 0.5, cy); g.fillText('B', xb + r * 0.5, cy);
+    g.font = '11px sans-serif'; g.fillText(label, W / 2, H - 8);
+  }
+  g.restore();
+}
+// Single event: a grid where every cell is one outcome; favorable cells glow gold.
+function coreVis(t, v, res){
+  if(t === 'single'){
+    const [f, n] = v;
+    if(!Number.isInteger(f) || !Number.isInteger(n) || n > 120){
+      animateCanvas('prCanvas', ({ g, W, H }, e) => visBar(g, W, H, e, res, `Favorable ${dec(f)}`, `Total ${dec(n)}`));
+      return;
+    }
+    const cols = Math.ceil(Math.sqrt(n * 2)), rows = Math.ceil(n / cols);
+    animateCanvas('prCanvas', ({ g, W, H }, e) => {
+      const size = Math.min((W - 40) / cols, (H - 40) / rows, 22), gap = 3;
+      const ox = (W - cols * size) / 2, oy = 12, shown = Math.ceil(e * n);
+      for(let i = 0; i < shown; i++){
+        const x = ox + (i % cols) * size, y = oy + Math.floor(i / cols) * size, fav = i < f;
+        g.globalAlpha = fav ? 1 : 0.35;
+        g.fillStyle = fav ? themeC('--d', '#fbbf24') : themeC('--c', '#8b5cf6');
+        g.fillRect(x + gap / 2, y + gap / 2, size - gap, size - gap);
+      }
+      g.globalAlpha = 1;
+      if(e > 0.9){
+        g.font = '12px sans-serif'; g.fillStyle = themeC('--a', '#fff'); g.textAlign = 'center';
+        g.fillText(`${f} favorable ÷ ${n} total = ${dec(res)}`, W / 2, H - 8);
+      }
+    }, 1100);
+    return;
+  }
+  if(t === 'complement') animateCanvas('prCanvas', ({ g, W, H }, e) => visBar(g, W, H, e, v[0], `P(A) = ${dec(v[0])}`, `P(A′) = ${dec(res)}`));
+  else if(t === 'atleast') animateCanvas('prCanvas', ({ g, W, H }, e) => visBar(g, W, H, e, res, `P(at least one) = ${dec(res)}`, `P(none) = ${dec(v[0])}`));
+  else if(t === 'union') animateCanvas('prCanvas', ({ g, W, H }, e) => visVenn(g, W, H, e, `P(A ∪ B) = ${dec(res)}`));
+  else if(t === 'cond') animateCanvas('prCanvas', ({ g, W, H }, e) => visVenn(g, W, H, e, `P(A | B) = ${dec(res)}`));
+}
+// Bayes: prior, likelihood and posterior bars grow one after another.
+function bayesVis(pA, pBA, pBnA, post){
+  const rows = [[`Prior  P(A) = ${dec(pA)}`, pA, false], [`Likelihood  P(B|A) = ${dec(pBA)}`, pBA, false], [`Posterior  P(A|B) = ${dec(post)}`, post, true]];
+  animateCanvas('prCanvas', ({ g, W, H }, e) => {
+    g.save(); g.font = '12px sans-serif'; g.textAlign = 'left';
+    rows.forEach(([lbl, p, hi], i) => {
+      const y = 26 + i * ((H - 40) / 3), w = W - 32, pe = Math.max(0, Math.min(1, p)) * Math.min(1, Math.max(0, e * 3 - i));
+      g.fillStyle = themeC('--a', '#fff'); g.fillText(lbl, 16, y);
+      g.globalAlpha = 0.3; g.fillStyle = themeC('--c', '#8b5cf6'); g.fillRect(16, y + 6, w, 14);
+      g.globalAlpha = 1; g.fillStyle = hi ? themeC('--d', '#fbbf24') : themeC('--c', '#8b5cf6');
+      g.fillRect(16, y + 6, w * pe, 14);
+    });
+    g.restore();
+  }, 1200);
+}
+// Combinations: n dots with r chosen (gold). Permutations: r slots counting down from n.
+function combVis(n, r, isNcr){
+  animateCanvas('prCanvas', ({ g, W, H }, e) => {
+    g.save(); g.font = '12px sans-serif'; g.textAlign = 'center';
+    if(n > 30){
+      g.fillStyle = themeC('--a', '#fff'); g.fillText(`Too many items to draw (n = ${n}). See the numeric answer below.`, W / 2, H / 2);
+      g.restore(); return;
+    }
+    if(isNcr){
+      const size = Math.min(34, (W - 30) / Math.max(n, 1)), ox = (W - n * size) / 2 + size / 2, oy = H / 2 - 8, shown = Math.ceil(e * n);
+      for(let i = 0; i < shown; i++){
+        g.beginPath(); g.arc(ox + i * size, oy, size * 0.36, 0, Math.PI * 2);
+        g.fillStyle = i < r ? themeC('--d', '#fbbf24') : themeC('--c', '#8b5cf6'); g.fill();
+      }
+      if(e > 0.9){ g.fillStyle = themeC('--a', '#fff'); g.fillText(`Choose ${r} of ${n} (order does not matter)`, W / 2, H - 10); }
+    } else {
+      const bw = Math.min(56, (W - 40) / Math.max(r, 1)), ox = (W - r * bw) / 2, oy = H / 2 - 22, shown = Math.ceil(e * r);
+      for(let i = 0; i < shown; i++){
+        g.fillStyle = themeC('--c', '#8b5cf6'); g.fillRect(ox + i * bw + 3, oy, bw - 6, 44);
+        g.fillStyle = '#ffffff'; g.font = 'bold 16px sans-serif'; g.fillText(String(n - i), ox + i * bw + bw / 2, oy + 28);
+        g.font = '12px sans-serif';
+      }
+      if(e > 0.9){
+        g.fillStyle = themeC('--a', '#fff');
+        g.fillText(`${r} slots, order matters: ${Array.from({ length: r }, (_, i) => n - i).join(' × ')}`, W / 2, H - 10);
+      }
+    }
+    g.restore();
+  }, 1000);
+}
+
+function erf(x){
+  const sgn = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return sgn * y;
+}
+const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+
+function solveCore(){
+  const t = $('#prCoreType').value;
+  const v = [...document.querySelectorAll('[data-pc]')].map(i => parseNum(i.value));
+  if(!v.length || v.some(isNaN)) throw new Error('Please fill every box with a number (fractions like 3/8 also work).');
+  let res, lines;
+  if(t === 'single'){
+    const [f, n] = v;
+    if(n <= 0 || f < 0 || f > n) throw new Error('Use 0 ≤ favorable ≤ total, with total > 0.');
+    res = f / n; lines = ['Formula: P(A) = favorable / total', `P(A) = ${dec(f)} / ${dec(n)} = ${dec(res)}`];
+  } else if(t === 'complement'){
+    const [pa] = v; if(!inProb(pa)) throw new Error('P(A) must be between 0 and 1.');
+    res = 1 - pa; lines = ['Formula: P(A′) = 1 − P(A)', `P(A′) = 1 − ${dec(pa)} = ${dec(res)}`];
+  } else if(t === 'union'){
+    const [pa, pb, pab] = v; if(![pa, pb, pab].every(inProb)) throw new Error('Each probability must be between 0 and 1.');
+    res = pa + pb - pab; lines = ['Formula: P(A∪B) = P(A) + P(B) − P(A∩B)', `= ${dec(pa)} + ${dec(pb)} − ${dec(pab)} = ${dec(res)}`];
+  } else if(t === 'cond'){
+    const [pab, pb] = v; if(!inProb(pab) || !inProb(pb) || pb === 0) throw new Error('P(B) must be greater than 0, and both values must be between 0 and 1.');
+    res = pab / pb; lines = ['Formula: P(A|B) = P(A∩B) / P(B)', `= ${dec(pab)} / ${dec(pb)} = ${dec(res)}`];
+  } else {
+    const [p0] = v; if(!inProb(p0)) throw new Error('P(None) must be between 0 and 1.');
+    res = 1 - p0; lines = ['Formula: P(at least one) = 1 − P(none)', `= 1 − ${dec(p0)} = ${dec(res)}`];
+  }
+  if(res < -1e-12 || res > 1 + 1e-12) throw new Error('The result is outside 0 to 1, so please check the inputs.');
+  coreVis(t, v, res);
+  showCard('prResults', '✅ Probability result', [...lines, `Answer: ${dec(res)}  (${dec(res * 100)}%)`]);
+}
+function solveBayes(){
+  const pA = parseNum($('#prBayesP_A').value), pBA = parseNum($('#prBayesP_BA').value), pBnA = parseNum($('#prBayesP_BnotA').value);
+  if(![pA, pBA, pBnA].every(v => !isNaN(v) && inProb(v))) throw new Error('All three probabilities must be numbers between 0 and 1.');
+  const pB = pBA * pA + pBnA * (1 - pA);
+  if(pB === 0) throw new Error("P(B) is 0, so Bayes' theorem cannot be applied.");
+  const post = pBA * pA / pB;
+  bayesVis(pA, pBA, pBnA, post);
+  showCard('prResults', "✅ Bayes' Theorem", [
+    `Given: P(A) = ${dec(pA)}, P(B|A) = ${dec(pBA)}, P(B|A′) = ${dec(pBnA)}`,
+    'Step 1: P(B) = P(B|A)·P(A) + P(B|A′)·P(A′)',
+    `        = ${dec(pBA)}·${dec(pA)} + ${dec(pBnA)}·${dec(1 - pA)} = ${dec(pB)}`,
+    'Step 2: P(A|B) = P(B|A)·P(A) / P(B)',
+    `        = ${dec(pBA)}·${dec(pA)} / ${dec(pB)} = ${dec(post)}`,
+    `✅ Answer: P(A|B) = ${dec(post)}  (${dec(post * 100)}%)`
+  ]);
+}
+function solveComb(){
+  const t = $('#prCombType').value;
+  const n = parseNum($('#prCombN').value), r = parseNum($('#prCombR').value);
+  const isInt = z => Number.isInteger(z) && z >= 0;
+  if(!isInt(n)) throw new Error('n must be a whole number, 0 or more.');
+  if(t === 'fact') return showCard('prResults', '✅ Factorial', ['Formula: n! = n × (n−1) × … × 1', `${n}! = ${dec(factN(n))}`]);
+  if(t === 'circPerm'){ if(n < 1) throw new Error('n must be at least 1.'); return showCard('prResults', '✅ Circular permutations', ['Formula: (n − 1)!', `(${n} − 1)! = ${dec(factN(n - 1))}`]); }
+  if(!isInt(r)) throw new Error('r must be a whole number, 0 or more.');
+  if(t === 'repPerm') return showCard('prResults', '✅ Repetition permutations', ['Formula: n^r', `${n}^${r} = ${dec(Math.pow(n, r))}`]);
+  if(r > n) throw new Error('r cannot be bigger than n.');
+  combVis(n, r, t === 'ncr');
+  if(t === 'ncr') showCard('prResults', '✅ Combinations', ['Formula: nCr = n! / (r!·(n−r)!)', `= ${n}! / (${r}!·${n - r}!)`, `= ${dec(choose(n, r))}`]);
+  else showCard('prResults', '✅ Permutations', ['Formula: nPr = n! / (n−r)!', `= ${n}! / ${n - r}!`, `= ${dec(permut(n, r))}`]);
+}
+function solveDist(){
+  const t = $('#prDistType').value;
+  const v = [...document.querySelectorAll('[data-pd]')].map(i => parseNum(i.value));
+  if(!v.length || v.some(isNaN)) throw new Error('Please fill every box with a valid number.');
+  if(t === 'binomial'){
+    const [n, p, x] = v;
+    if(!Number.isInteger(n) || n < 0) throw new Error('n must be a whole number, 0 or more.');
+    if(!inProb(p)) throw new Error('p must be between 0 and 1.');
+    if(!Number.isInteger(x) || x < 0 || x > n) throw new Error('x must be a whole number from 0 to n.');
+    const pm = k => choose(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+    let cdf = 0; for(let k = 0; k <= x; k++) cdf += pm(k);
+    const top = Math.min(n, 60), ks = [], ps = [];
+    for(let k = 0; k <= top; k++){ ks.push(k); ps.push(pm(k)); }
+    plotBars(ks, ps, x <= top ? x : -1);
+    showCard('prResults', '✅ Binomial distribution', [
+      'Formula: P(X = x) = C(n,x) · pˣ · (1 − p)ⁿ⁻ˣ',
+      `n = ${n}, p = ${dec(p)}, x = ${x}`,
+      `P(X = ${x}) = ${dec(choose(n, x))} · ${dec(p)}^${x} · ${dec(1 - p)}^${n - x} = ${dec(pm(x))}`,
+      `P(X ≤ ${x}) = ${dec(cdf)}`,
+      n > 60 ? 'Chart shows k = 0 to 60 for readability.' : ''
+    ]);
+  } else if(t === 'poisson'){
+    const [lam, x] = v;
+    if(lam <= 0) throw new Error('λ must be greater than 0.');
+    if(!Number.isInteger(x) || x < 0) throw new Error('x must be a whole number, 0 or more.');
+    const top = Math.min(60, Math.max(x, Math.ceil(lam * 3) + 5)), ks = [], ps = [];
+    let pk = Math.exp(-lam), cdf = 0, px = NaN;
+    for(let k = 0; k <= top; k++){
+      if(k > 0) pk *= lam / k;
+      ks.push(k); ps.push(pk);
+      if(k <= x) cdf += pk;
+      if(k === x) px = pk;
+    }
+    plotBars(ks, ps, x <= top ? x : -1);
+    showCard('prResults', '✅ Poisson distribution', [
+      'Formula: P(X = x) = e^(−λ) · λˣ / x!',
+      `λ = ${dec(lam)}, x = ${x}`,
+      `P(X = ${x}) = ${dec(px)}`,
+      `P(X ≤ ${x}) = ${dec(cdf)}`
+    ]);
+  } else if(t === 'normal'){
+    const [mu, sg, x] = v;
+    if(sg <= 0) throw new Error('σ must be greater than 0.');
+    const z = (x - mu) / sg;
+    const pdf = Math.exp(-z * z / 2) / (sg * Math.sqrt(2 * Math.PI));
+    plotCurve(u => Math.exp(-Math.pow((u - mu) / sg, 2) / 2) / (sg * Math.sqrt(2 * Math.PI)), mu - 4 * sg, mu + 4 * sg, x);
+    showCard('prResults', '✅ Normal distribution', [
+      `Step 1: z = (x − μ) / σ = ${dec(z)}`,
+      `Step 2: Density f(x) = ${dec(pdf)}`,
+      `Step 3: P(X ≤ x) = Φ(z) = ${dec(Phi(z))}`,
+      'For a continuous variable, P(X = x) = 0, so use P(X ≤ x).'
+    ]);
+  } else {
+    const [a, b, x] = v;
+    if(b <= a) throw new Error('b must be greater than a.');
+    const pdf = x >= a && x <= b ? 1 / (b - a) : 0;
+    const cdf = Math.min(1, Math.max(0, (x - a) / (b - a)));
+    plotCurve(u => (u >= a && u <= b) ? 1 / (b - a) : 0, a - 0.2 * (b - a), b + 0.2 * (b - a), x);
+    showCard('prResults', '✅ Uniform distribution', [
+      `Density f(x) = 1 / (b − a) = ${dec(1 / (b - a))} for a ≤ x ≤ b`,
+      `f(${dec(x)}) = ${dec(pdf)}`,
+      `P(X ≤ x) = (x − a) / (b − a) = ${dec(cdf)}`
+    ]);
+  }
+}
+$('#prSolveBtn').onclick = () => safe('prResults', () => {
+  if(probMode === 'core') solveCore();
+  else if(probMode === 'bayes') solveBayes();
+  else if(probMode === 'comb') solveComb();
+  else solveDist();
+});
+
+// ---------- STATISTICS ----------
+let statMode = 'ungrouped';
+$('#stSeg').onclick = e => {
+  const b = e.target.closest('[data-stt]'); if(!b) return;
+  statMode = b.dataset.stt;
+  $$('#stSeg button').forEach(x => x.classList.toggle('on', x === b));
+  $('#stUngroupedBox').classList.toggle('hid', statMode !== 'ungrouped');
+  $('#stGroupedBox').classList.toggle('hid', statMode !== 'grouped');
+};
+function statsUngrouped(){
+  const nums = $('#stDataInput').value.split(/[,\s]+/).filter(Boolean).map(Number);
+  if(!nums.length) throw new Error('Enter some numbers separated by commas, e.g. 12, 15, 18.');
+  if(nums.some(v => !Number.isFinite(v))) throw new Error('The data list should contain only numbers.');
+  const n = nums.length, sum = nums.reduce((s, v) => s + v, 0), mean = sum / n;
+  const sorted = [...nums].sort((a, b) => a - b);
+  const median = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+  const freq = new Map(); nums.forEach(v => freq.set(v, (freq.get(v) || 0) + 1));
+  const top = Math.max(...freq.values());
+  const mode = top === 1 ? 'None (every value appears once)' : [...freq].filter(([, f]) => f === top).map(([v]) => dec(v)).join(', ');
+  const ss = nums.reduce((s, v) => s + (v - mean) ** 2, 0);
+  const pVar = ss / n, sVar = n > 1 ? ss / (n - 1) : NaN;
+  showCard('stResults', '✅ Statistics (ungrouped)', [
+    `Sorted data (n = ${n}): ${sorted.map(v => dec(v)).join(', ')}`,
+    `Sum = ${dec(sum)}`,
+    `Mean x̄ = ${dec(sum)} / ${n} = ${dec(mean)}`,
+    `Median = ${dec(median)}`,
+    `Mode = ${mode}`,
+    `Range = ${dec(sorted[n - 1] - sorted[0])}`,
+    `Population variance σ² = Σ(x − x̄)² / n = ${dec(pVar)}`,
+    `Population SD σ = ${dec(Math.sqrt(pVar))}`,
+    n > 1 ? `Sample variance s² = Σ(x − x̄)² / (n − 1) = ${dec(sVar)}` : 'Sample variance needs at least 2 values.',
+    n > 1 ? `Sample SD s = ${dec(Math.sqrt(sVar))}` : ''
+  ]);
+}
+function statsGrouped(){
+  const ivs = $('#stIntervalsInput').value.split('\n').map(s => s.trim()).filter(Boolean);
+  const fs = $('#stFreqsInput').value.split(/[\n,]/).map(s => s.trim()).filter(Boolean).map(Number);
+  if(!ivs.length || ivs.length !== fs.length) throw new Error('Each interval needs exactly one frequency (same number of lines).');
+  if(fs.some(f => !Number.isFinite(f) || f < 0)) throw new Error('Frequencies must be non-negative numbers.');
+  const mids = ivs.map(s => {
+    const p = s.split(/-|–|to/).map(Number);
+    if(p.length !== 2 || p.some(isNaN)) throw new Error(`Interval "${s}" should look like 10-20.`);
+    return (p[0] + p[1]) / 2;
+  });
+  const N = fs.reduce((s, f) => s + f, 0);
+  if(N === 0) throw new Error('Total frequency is 0.');
+  const mean = mids.reduce((s, m, i) => s + fs[i] * m, 0) / N;
+  const vr = mids.reduce((s, m, i) => s + fs[i] * (m - mean) ** 2, 0) / N;
+  showCard('stResults', '✅ Statistics (grouped)', [
+    `Total frequency N = ${dec(N)}`,
+    'Step 1: Class midpoints m = (lower + upper) / 2 → ' + mids.map(m => dec(m)).join(', '),
+    `Step 2: Mean = Σ f·m / N = ${dec(mean)}`,
+    `Step 3: Variance = Σ f(m − mean)² / N = ${dec(vr)}`,
+    `✅ Standard deviation = ${dec(Math.sqrt(vr))}`
+  ]);
+}
+$('#stCalcBtn').onclick = () => safe('stResults', () => statMode === 'grouped' ? statsGrouped() : statsUngrouped());
+
+// ---------- MATRICES ----------
+function buildMatGrid(id, n, tag){
+  const box = document.getElementById(id); if(!box) return;
+  let h = `<div class="sub mb-1">Matrix ${tag} (${n}×${n})</div><div style="display:grid;grid-template-columns:repeat(${n},1fr);gap:6px">`;
+  for(let r = 0; r < n; r++) for(let c = 0; c < n; c++)
+    h += `<input class="in" data-mt="${tag}" data-r="${r}" data-c="${c}" value="${r === c ? 1 : 0}" inputmode="decimal" style="padding:8px;text-align:center">`;
+  box.innerHTML = h + '</div>';
+}
+function readMat(tag, n){
+  const M = Array.from({ length: n }, () => Array(n).fill(0));
+  document.querySelectorAll(`[data-mt="${tag}"]`).forEach(inp => {
+    const v = parseNum(inp.value);
+    if(isNaN(v)) throw new Error(`Matrix ${tag} has an empty or invalid cell (row ${+inp.dataset.r + 1}, column ${+inp.dataset.c + 1}).`);
+    M[+inp.dataset.r][+inp.dataset.c] = v;
+  });
+  return M;
+}
+const matText = M => M.map(row => '[ ' + row.map(v => dec(v).padStart(9)).join(' ') + ' ]').join('\n');
+const minorOf = (M, i, j) => M.filter((_, r) => r !== i).map(row => row.filter((_, c) => c !== j));
+function detOf(M){
+  const n = M.length;
+  if(n === 1) return M[0][0];
+  if(n === 2) return M[0][0] * M[1][1] - M[0][1] * M[1][0];
+  let d = 0;
+  for(let j = 0; j < n; j++) d += (j % 2 ? -1 : 1) * M[0][j] * detOf(minorOf(M, 0, j));
+  return d;
+}
+function solveMatrix(){
+  const n = +$('#mSize').value, op = $('#mop').value;
+  const A = readMat('A', n), B = readMat('B', n);
+  if(op === 'add' || op === 'sub'){
+    const s = op === 'add' ? 1 : -1;
+    const C = A.map((row, i) => row.map((v, j) => v + s * B[i][j]));
+    return showCard('mres', op === 'add' ? '✅ A + B' : '✅ A − B', [
+      `Step 1: Combine matching entries, C[i][j] = A[i][j] ${op === 'add' ? '+' : '−'} B[i][j]`,
+      'A =\n' + matText(A), 'B =\n' + matText(B), 'C =\n' + matText(C)
+    ]);
+  }
+  if(op === 'mul'){
+    const C = A.map((row, i) => B[0].map((_, j) => row.reduce((s, _2, k) => s + A[i][k] * B[k][j], 0)));
+    const ex = A[0].map((_, k) => `${dec(A[0][k])}·${dec(B[k][0])}`).join(' + ');
+    return showCard('mres', '✅ A · B', [
+      'Step 1: C[i][j] = Σ A[i][k] · B[k][j]',
+      `Example: C₁₁ = ${ex} = ${dec(C[0][0])}`,
+      'C =\n' + matText(C)
+    ]);
+  }
+  if(op === 'det'){
+    const d = detOf(A);
+    const lines = ['Step 1: Matrix A\n' + matText(A)];
+    if(n === 2) lines.push(`Step 2: det = ad − bc = (${dec(A[0][0])})(${dec(A[1][1])}) − (${dec(A[0][1])})(${dec(A[1][0])})`);
+    else {
+      lines.push('Step 2: Cofactor expansion along row 1:');
+      A[0].forEach((a, j) => lines.push(`   ${j % 2 ? '−' : '+'} ${dec(a)} × det(minor ${j + 1}) = ${dec((j % 2 ? -1 : 1) * a * detOf(minorOf(A, 0, j)))}`));
+    }
+    lines.push(`✅ det(A) = ${dec(d)}`);
+    return showCard('mres', '✅ Determinant', lines);
+  }
+  if(op === 'inv'){
+    const d = detOf(A);
+    if(Math.abs(d) < 1e-12) return showCard('mres', '⚠️ No inverse', ['det(A) = 0, so A is singular and has no inverse.', 'Tip: a singular matrix has rows or columns that depend on each other.']);
+    const C = A.map((row, i) => row.map((_, j) => ((i + j) % 2 ? -1 : 1) * detOf(minorOf(A, i, j))));
+    const Inv = C.map((row, i) => row.map((_, j) => C[j][i] / d));
+    return showCard('mres', '✅ Inverse A⁻¹', [
+      `Step 1: det(A) = ${dec(d)}`,
+      'Step 2: Cofactor matrix C:\n' + matText(C),
+      'Step 3: A⁻¹ = (1 / det A) · Cᵀ\n' + matText(Inv)
+    ]);
+  }
+}
+buildMatGrid('edA', 3, 'A');
+buildMatGrid('edB', 3, 'B');
+$('#mSize').addEventListener('change', () => {
+  const n = +$('#mSize').value;
+  buildMatGrid('edA', n, 'A'); buildMatGrid('edB', n, 'B');
+});
+$('#mrun').onclick = () => safe('mres', solveMatrix);
+
+// ---------- CALCULUS (numeric, offline) ----------
+let calcMode = 'diff';
+const CALC_LABELS = { diff: ['Point 1: evaluate at x =', 'Point 2: evaluate at x ='], integ: ['Lower Limit (a):', 'Upper Limit (b):'] };
+function setCalcLabels(){
+  const lbls = $('#calcBoundsBox').querySelectorAll('label');
+  lbls[0].textContent = CALC_LABELS[calcMode][0];
+  lbls[1].textContent = CALC_LABELS[calcMode][1];
+}
+$('#calcSeg').onclick = e => {
+  const b = e.target.closest('[data-ct]'); if(!b) return;
+  calcMode = b.dataset.ct;
+  $$('#calcSeg button').forEach(x => x.classList.toggle('on', x === b));
+  setCalcLabels();
+};
+function evalAtX(expr, xv){
+  const s = expr.replace(/x/g, `(${xv.toFixed(12)})`);
+  const saved = deg; deg = false;
+  try {
+    const v = ev(s);
+    if(v == null) throw new Error(`I couldn't evaluate f(${dec(xv)}). Check the function, e.g. x^3 - 4*x^2 + 6*x.`);
+    return v;
+  } finally { deg = saved; }
+}
+function simpson(f, a, b, n = 2000){
+  if(a === b) return 0;
+  const h = (b - a) / n; let s = f(a) + f(b);
+  for(let i = 1; i < n; i++) s += (i % 2 ? 4 : 2) * f(a + i * h);
+  return s * h / 3;
+}
+$('#calcComputeBtn').onclick = () => safe('calcResults', () => {
+  const expr = $('#calcExpr').value.trim();
+  if(!expr) throw new Error('Type a function of x, e.g. x^3 - 4*x^2 + 6*x.');
+  const a = parseNum($('#calcLimA').value), b = parseNum($('#calcLimB').value);
+  if(isNaN(a) || isNaN(b)) throw new Error('Please enter numbers for both limits.');
+  const f = x => evalAtX(expr, x);
+  if(calcMode === 'diff'){
+    const d = x => { const h = 1e-5 * Math.max(1, Math.abs(x)); return (f(x + h) - f(x - h)) / (2 * h); };
+    showCard('calcResults', '✅ Derivative f′(x)', [
+      `f(x) = ${expr}`,
+      'Method: central difference [f(x+h) − f(x−h)] / 2h',
+      `f′(${dec(a)}) ≈ ${dec(d(a))}`,
+      `f′(${dec(b)}) ≈ ${dec(d(b))}`
+    ]);
+  } else {
+    const I = simpson(f, a, b);
+    showCard('calcResults', '✅ Definite integral', [
+      `∫ from ${dec(a)} to ${dec(b)} of (${expr}) dx`,
+      'Method: Simpson\'s rule with 2000 subintervals',
+      `Value ≈ ${dec(I)}`,
+      `f(${dec(a)}) = ${dec(f(a))},  f(${dec(b)}) = ${dec(f(b))}`
+    ]);
+  }
+});
+
+// ---------- INITIALISE STUDIOS ----------
+renderCoreInputs();
+renderDistInputs();
+setCalcLabels();
+$('#calcBoundsBox').classList.remove('hid');
+
+// ===================== STUDIO ENGINES · PART 2 (offline) =====================
+// ---------- GRAPH STUDIO ----------
+const G = { mode: 'cart', view: { cx: 0, cy: 0, s: 40 }, fns: [] };
+const GCOL = ['#fbbf24', '#38bdf8', '#f472b6', '#34d399', '#a78bfa', '#fb923c'];
+const GPH = { cart: 'y = x^2 - 4', param: 'cos(t), sin(t)', polar: 'r = 1 + cos(t)' };
+const gSan = s => String(s).replace(/\s+/g, '').replace(/−/g, '-').replace(/θ/g, 't')
+  .replace(/sqrt/gi, '√').replace(/(?<![a-zA-Z])pi(?![a-zA-Z])/gi, 'π');
+function gParse(raw){
+  const s = gSan(raw);
+  if(!s) throw new Error('Type a function first, e.g. y = x^2 - 4');
+  if(G.mode === 'cart'){
+    let m = s.match(/^y(<=|>=|<|>)(.+)$/);
+    if(m) return { type: 'cart', ineq: m[1], f: m[2] };
+    m = s.match(/^(?:y|f\(x\))=(.+)$/i);
+    const f = m ? m[1] : s;
+    if(/(?<![a-zA-Z])y(?![a-zA-Z])/.test(f)) throw new Error("Implicit equations like x²+y²=4 aren't supported yet. Split them: y = sqrt(4-x^2) and y = -sqrt(4-x^2).");
+    return { type: 'cart', f };
+  }
+  if(G.mode === 'param'){
+    const parts = s.split(',');
+    if(parts.length !== 2 || !parts[0] || !parts[1]) throw new Error('Parametric: type x(t), y(t), e.g. cos(t), sin(t)');
+    return { type: 'param', fx: parts[0], fy: parts[1] };
+  }
+  const m = s.match(/^r=(.+)$/i);
+  return { type: 'polar', f: m ? m[1] : s };
+}
+function gEval(expr, v, val){
+  const s = expr.replace(new RegExp(`(?<![a-zA-Z])${v}(?![a-zA-Z])`, 'g'), `(${val.toFixed(12)})`);
+  const saved = deg; deg = false;
+  try { const r = ev(s); return r == null ? NaN : r; }
+  finally { deg = saved; }
+}
+function gCurve(fn, X0, X1, N, W, H){
+  // returns list of polylines in world coordinates; null breaks the line
+  const pts = [];
+  if(fn.type === 'cart'){
+    for(let i = 0; i <= N; i++){
+      const x = X0 + (X1 - X0) * i / N, y = gEval(fn.f, 'x', x);
+      pts.push(Number.isFinite(y) && Math.abs(y) < 1e6 ? [x, y] : null);
+    }
+  } else if(fn.type === 'param'){
+    for(let i = 0; i <= 1000; i++){
+      const t = 2 * Math.PI * i / 1000;
+      const x = gEval(fn.fx, 't', t), y = gEval(fn.fy, 't', t);
+      pts.push(Number.isFinite(x) && Number.isFinite(y) ? [x, y] : null);
+    }
+  } else {
+    for(let i = 0; i <= 1000; i++){
+      const t = 2 * Math.PI * i / 1000, r = gEval(fn.f, 't', t);
+      pts.push(Number.isFinite(r) ? [r * Math.cos(t), r * Math.sin(t)] : null);
+    }
+  }
+  return pts;
+}
+function gRoots(f1, f2, X0, X1){
+  const N = 800, roots = [];
+  const h = x => gEval(f1, 'x', x) - (f2 ? gEval(f2, 'x', x) : 0);
+  let px = X0, pv = h(X0);
+  for(let i = 1; i <= N && roots.length < 10; i++){
+    const x = X0 + (X1 - X0) * i / N, v = h(x);
+    if(v === 0){ roots.push(x); }
+    else if(Number.isFinite(pv) && Number.isFinite(v) && pv !== 0 && (pv < 0) !== (v < 0)){
+      let lo = px, hi = x;
+      for(let k = 0; k < 60; k++){ const m = (lo + hi) / 2; if(h(lo) * h(m) <= 0) hi = m; else lo = m; }
+      roots.push((lo + hi) / 2);
+    }
+    px = x; pv = v;
+  }
+  return roots;
+}
+function gDraw(){
+  const cv = document.getElementById('gc'); if(!cv) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  if(!W || !H) return;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const { cx, cy, s } = G.view;
+  const X0 = cx - W / 2 / s, X1 = cx + W / 2 / s, Y0 = cy - H / 2 / s, Y1 = cy + H / 2 / s;
+  const px = x => W / 2 + (x - cx) * s, py = y => H / 2 - (y - cy) * s;
+  const raw = 90 / s, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 5, 10].map(k => k * mag).find(v => v >= raw) || mag * 10;
+  g.font = '10px sans-serif';
+  for(let x = Math.ceil(X0 / step) * step; x <= X1; x += step){
+    g.strokeStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.moveTo(px(x), 0); g.lineTo(px(x), H); g.stroke();
+    if(Math.abs(x) > 1e-9){ g.fillStyle = themeC('--a', '#ccc'); g.textAlign = 'center'; g.fillText(dec(x), px(x), Math.min(H - 4, Math.max(12, py(0) + 12))); }
+  }
+  for(let y = Math.ceil(Y0 / step) * step; y <= Y1; y += step){
+    g.strokeStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.moveTo(0, py(y)); g.lineTo(W, py(y)); g.stroke();
+    if(Math.abs(y) > 1e-9){ g.fillStyle = themeC('--a', '#ccc'); g.textAlign = 'right'; g.fillText(dec(y), Math.max(24, px(0) - 4), py(y) - 2); }
+  }
+  g.strokeStyle = themeC('--a', '#fff'); g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(0, py(0)); g.lineTo(W, py(0)); g.moveTo(px(0), 0); g.lineTo(px(0), H); g.stroke();
+
+  const readout = [];
+  G.fns.forEach((fn, idx) => {
+    const col = GCOL[idx % GCOL.length];
+    const pts = gCurve(fn, X0, X1, W, W, H);
+    if(fn.ineq){
+      const up = fn.ineq.startsWith('>');
+      g.fillStyle = col; g.globalAlpha = 0.15;
+      pts.forEach((p, i) => {
+        if(!p || fn.type !== 'cart') return;
+        const yp = Math.min(H, Math.max(0, py(p[1])));
+        if(up) g.fillRect(i * (W / pts.length), 0, W / pts.length + 1, yp);
+        else g.fillRect(i * (W / pts.length), yp, W / pts.length + 1, H - yp);
+      });
+      g.globalAlpha = 1;
+    }
+    g.strokeStyle = col; g.lineWidth = 2; g.beginPath();
+    let pen = false;
+    pts.forEach(p => {
+      if(!p){ pen = false; return; }
+      if(pen) g.lineTo(px(p[0]), py(p[1])); else { g.moveTo(px(p[0]), py(p[1])); pen = true; }
+    });
+    g.stroke();
+    if(fn.type === 'cart'){
+      const rts = gRoots(fn.f, null, X0, X1);
+      rts.forEach(r => { g.beginPath(); g.arc(px(r), py(0), 4, 0, 2 * Math.PI); g.fillStyle = col; g.fill(); });
+      readout.push(`${fn.ineq ? 'y ' + fn.ineq + ' ' : 'y = '}${fn.f}` + (rts.length ? `  roots: ${rts.map(r => 'x≈' + dec(r)).join(', ')}` : '  no roots in view'));
+    } else readout.push(`${fn.type === 'param' ? `x(t)=${fn.fx}, y(t)=${fn.fy}` : `r = ${fn.f}`}`);
+  });
+  const carts = G.fns.filter(f => f.type === 'cart' && !f.ineq);
+  if(carts.length >= 2){
+    const ints = gRoots(carts[0].f, carts[1].f, X0, X1);
+    if(ints.length) readout.push(`Intersections of the first two: ${ints.map(r => `(${dec(r)}, ${dec(gEval(carts[0].f, 'x', r))})`).join(', ')}`);
+  }
+  $('#gread').textContent = readout.length ? readout.join('\n') : 'Drag to pan · scroll/pinch to zoom';
+}
+function zoomAt(px_, py_, f){
+  const cv = document.getElementById('gc'); const W = cv.clientWidth, H = cv.clientHeight;
+  const { cx, cy, s } = G.view;
+  const wx = cx + (px_ - W / 2) / s, wy = cy - (py_ - H / 2) / s;
+  const ns = Math.min(5000, Math.max(2, s * f));
+  G.view.s = ns;
+  G.view.cx = wx - (px_ - W / 2) / ns;
+  G.view.cy = wy + (py_ - H / 2) / ns;
+}
+(function gInteractions(){
+  const cv = document.getElementById('gc');
+  const ptrs = new Map(); let pinch = null;
+  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY }); });
+  cv.addEventListener('pointermove', e => {
+    if(!ptrs.has(e.pointerId)) return;
+    const prev = ptrs.get(e.pointerId); ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY });
+    if(ptrs.size === 1){ G.view.cx -= (e.offsetX - prev.x) / G.view.s; G.view.cy += (e.offsetY - prev.y) / G.view.s; }
+    else if(ptrs.size === 2){
+      const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if(pinch) zoomAt((a.x + b.x) / 2, (a.y + b.y) / 2, d / pinch);
+      pinch = d;
+    }
+    gDraw();
+  });
+  const end = e => { ptrs.delete(e.pointerId); pinch = null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.offsetX, e.offsetY, e.deltaY < 0 ? 1.15 : 1 / 1.15); gDraw(); }, { passive: false });
+})();
+$('#gseg').onclick = e => {
+  const b = e.target.closest('[data-gt]'); if(!b) return;
+  G.mode = b.dataset.gt; G.fns = [];
+  $$('#gseg button').forEach(x => x.classList.toggle('on', x === b));
+  $('#gexpr').placeholder = GPH[G.mode];
+  $('#gerr').textContent = ''; gDraw();
+};
+$('#gplot').onclick = () => {
+  const err = $('#gerr'); err.textContent = '';
+  try {
+    const parts = $('#gexpr').value.split(';').map(s => s.trim()).filter(Boolean);
+    if(!parts.length) throw new Error('Type a function first, e.g. y = x^2 - 4');
+    const fns = parts.map(gParse);
+    fns.forEach(fn => {
+      const probe = gCurve(fn, -2, 2, 20, 0, 0);
+      if(!probe.some(p => p)) throw new Error(`Could not plot "${fn.f || fn.fx || ''}". Check the expression.`);
+    });
+    G.fns = fns; gDraw();
+  } catch(e){ err.textContent = '⚠ ' + e.message; }
+};
+$('#gclr').onclick = () => { G.fns = []; $('#gerr').textContent = ''; gDraw(); };
+$('#grst').onclick = () => { G.view = { cx: 0, cy: 0, s: 40 }; gDraw(); };
+
+// ---------- GEOMETRY STUDIO ----------
+const GEO_FIELDS = {
+  circle: ['Radius r (or blank)', 'Area A (to find r)', 'Circumference C (to find r)'],
+  triangle: ['Base b', 'Height h (on base b)', 'Side a', 'Side c'],
+  square: ['Side a (or blank)', 'Area A (to find a)', 'Perimeter P (to find a)'],
+  rectangle: ['Width w', 'Height h', 'Area A (to find missing side)'],
+  sphere: ['Radius r (or blank)', 'Volume V (to find r)', 'Surface area S (to find r)'],
+  cylinder: ['Radius r (or blank)', 'Height h', 'Volume V (to find r)'],
+  coord: ['x₁', 'y₁', 'x₂', 'y₂']
+};
+function renderGeoInputs(){
+  const s = $('#geoShape').value;
+  $('#geoInputs').innerHTML = (GEO_FIELDS[s] || []).map((l, i) => `<input class="in" data-geo="${i}" placeholder="${esc(l)}" inputmode="decimal">`).join('');
+}
+// Draws a shape as an animation: the outline sweeps in, the fill fades in, then radius/side labels appear.
+function drawFit(id, pts, closed, ann){
+  if(!pts || !pts.length) return;
+  animateCanvas(id, ({ g, W, H }, e) => {
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+    const bw = (maxX - minX) || 1, bh = (maxY - minY) || 1;
+    const sc = Math.min((W - 70) / bw, (H - 60) / bh);
+    const X = x => (W - bw * sc) / 2 + (x - minX) * sc;
+    const Y = y => H - (H - bh * sc) / 2 - (y - minY) * sc;
+    const k = Math.max(2, Math.ceil(e * pts.length));
+    g.save();
+    g.beginPath();
+    pts.slice(0, k).forEach((p, i) => i ? g.lineTo(X(p[0]), Y(p[1])) : g.moveTo(X(p[0]), Y(p[1])));
+    if(closed && k === pts.length) g.closePath();
+    g.globalAlpha = 0.2 * e; g.fillStyle = themeC('--c', '#8b5cf6'); if(closed) g.fill();
+    g.globalAlpha = 1; g.strokeStyle = themeC('--d', '#fbbf24'); g.lineWidth = 2; g.stroke();
+    if(ann && e > 0.55) drawAnn(g, ann, X, Y, Math.min(1, (e - 0.55) / 0.45));
+    g.restore();
+  }, 1000);
+}
+
+// Labels for the shape: radius r (circle, sphere), radius and height (cylinder), width and height (rectangle, square),
+// base and perpendicular height (triangle), and labelled points (coordinate geometry).
+function drawAnn(g, ann, X, Y, a){
+  const col = themeC('--a', '#fff'), gold = themeC('--d', '#fbbf24');
+  g.globalAlpha = a; g.font = '11px sans-serif'; g.strokeStyle = col; g.fillStyle = col; g.lineWidth = 1.5;
+  const seg = (x1, y1, x2, y2, dash) => { g.beginPath(); if(dash) g.setLineDash([4, 3]); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); g.setLineDash([]); };
+  const dot = (x, y) => { g.beginPath(); g.arc(x, y, 3.5, 0, Math.PI * 2); g.fillStyle = gold; g.fill(); g.fillStyle = col; };
+  if(ann.kind === 'radius' || ann.kind === 'cyl'){
+    seg(X(0), Y(0), X(ann.r * a), Y(0));
+    dot(X(0), Y(0));
+    g.textAlign = 'center'; g.fillText(ann.text, X(ann.r / 2), Y(0) - 6);
+    if(ann.kind === 'cyl'){
+      seg(X(ann.r), Y(0), X(ann.r), Y(ann.h * a), true);
+      g.textAlign = 'left'; g.fillText(ann.htext, X(ann.r) + 6, Y(ann.h / 2));
+    }
+  } else if(ann.kind === 'rect'){
+    g.textAlign = 'center'; g.fillText(`w = ${dec(ann.w)}`, X(ann.w / 2), Y(0) + 16);
+    g.textAlign = 'left'; g.fillText(`h = ${dec(ann.h)}`, X(ann.w) + 6, Y(ann.h / 2));
+  } else if(ann.kind === 'tri'){
+    const yEnd = Y(ann.fy) + (Y(0) - Y(ann.fy)) * a;
+    seg(X(ann.fx), Y(ann.fy), X(ann.fx), yEnd, true);
+    g.textAlign = 'left'; g.fillText(`h = ${dec(ann.hgt)}`, X(ann.fx) + 6, (Y(ann.fy) + Y(0)) / 2);
+    g.textAlign = 'center'; g.fillText(`b = ${dec(ann.b)}`, X(ann.b / 2), Y(0) + 16);
+  } else if(ann.kind === 'coord'){
+    ann.labels.forEach(([x, y, txt]) => { dot(X(x), Y(y)); g.textAlign = 'center'; g.fillText(txt, X(x), Y(y) - 9); });
+  }
+  g.setLineDash([]); g.globalAlpha = 1;
+}
+
+function solveGeo(){
+  const s = $('#geoShape').value;
+  const v = [...document.querySelectorAll('[data-geo]')].map(i => { const t = i.value.trim(); return t === '' ? NaN : parseNum(t); });
+  const has = i => Number.isFinite(v[i]);
+  const pos = x => { if(!(x > 0) || !Number.isFinite(x)) throw new Error('Lengths must be numbers greater than 0.'); return x; };
+  const P = Math.PI;
+  const circlePts = r => Array.from({ length: 121 }, (_, i) => { const t = 2 * P * i / 120; return [r * Math.cos(t), r * Math.sin(t)]; });
+  if(s === 'circle'){
+    if(!has(0) && !has(1) && !has(2)) throw new Error('Enter a radius, or an area or circumference to find it.');
+    const r = has(0) ? pos(v[0]) : has(1) ? pos(Math.sqrt(v[1] / P)) : pos(v[2] / (2 * P));
+    const how = has(0) ? 'Radius given' : has(1) ? `r = √(A / π) = √(${dec(v[1])} / π)` : `r = C / 2π = ${dec(v[2])} / 2π`;
+    drawFit('geoCanvas', circlePts(r), true, { kind: 'radius', r, text: `r = ${dec(r)}` });
+    return showCard('geoResults', '✅ Circle', [`Step 1: ${how} → r = ${dec(r)}`, `Diameter d = 2r = ${dec(2 * r)}`, `Area A = πr² = ${dec(P * r * r)}`, `Circumference C = 2πr = ${dec(2 * P * r)}`]);
+  }
+  if(s === 'sphere'){
+    if(!has(0) && !has(1) && !has(2)) throw new Error('Enter a radius, or a volume or surface area to find it.');
+    const r = has(0) ? pos(v[0]) : has(1) ? pos(Math.cbrt(3 * v[1] / (4 * P))) : pos(Math.sqrt(v[2] / (4 * P)));
+    drawFit('geoCanvas', circlePts(r), true, { kind: 'radius', r, text: `r = ${dec(r)}` });
+    return showCard('geoResults', '✅ Sphere', [`Radius r = ${dec(r)}`, `Volume V = 4/3 · πr³ = ${dec(4 / 3 * P * r ** 3)}`, `Surface area S = 4πr² = ${dec(4 * P * r * r)}`, `Diameter d = ${dec(2 * r)}`]);
+  }
+  if(s === 'cylinder'){
+    if(!has(1)) throw new Error('Enter the height h.');
+    const h = pos(v[1]);
+    if(!has(0) && !has(2)) throw new Error('Enter a radius, or a volume to find the radius.');
+    const r = has(0) ? pos(v[0]) : pos(Math.sqrt(v[2] / (P * h)));
+    drawFit('geoCanvas', [[-r, 0], [r, 0], [r, h], [-r, h]], true, { kind: 'cyl', r, h, text: `r = ${dec(r)}`, htext: `h = ${dec(h)}` });
+    return showCard('geoResults', '✅ Cylinder', [`Radius r = ${dec(r)}${has(0) ? '' : ' (from V = πr²h)'}`, `Volume V = πr²h = ${dec(P * r * r * h)}`, `Lateral area = 2πrh = ${dec(2 * P * r * h)}`, `Total surface area = 2πr(r + h) = ${dec(2 * P * r * (r + h))}`]);
+  }
+  if(s === 'square'){
+    if(!has(0) && !has(1) && !has(2)) throw new Error('Enter a side, or an area or perimeter to find it.');
+    const a = has(0) ? pos(v[0]) : has(1) ? pos(Math.sqrt(v[1])) : pos(v[2] / 4);
+    const how = has(0) ? 'Side given' : has(1) ? `a = √A = √${dec(v[1])}` : `a = P / 4 = ${dec(v[2])} / 4`;
+    drawFit('geoCanvas', [[0, 0], [a, 0], [a, a], [0, a]], true, { kind: 'rect', w: a, h: a });
+    return showCard('geoResults', '✅ Square', [`Step 1: ${how} → a = ${dec(a)}`, `Area A = a² = ${dec(a * a)}`, `Perimeter P = 4a = ${dec(4 * a)}`, `Diagonal d = a√2 = ${dec(a * Math.SQRT2)}`]);
+  }
+  if(s === 'rectangle'){
+    const known = [has(0), has(1), has(2)].filter(Boolean).length;
+    if(known < 2) throw new Error('Enter any two of: width, height, area.');
+    let w = has(0) ? v[0] : v[2] / v[1];
+    let h = has(1) ? v[1] : v[2] / w;
+    pos(w); pos(h);
+    drawFit('geoCanvas', [[0, 0], [w, 0], [w, h], [0, h]], true, { kind: 'rect', w, h });
+    return showCard('geoResults', '✅ Rectangle', [`Width w = ${dec(w)},  Height h = ${dec(h)}`, `Area = w × h = ${dec(w * h)}`, `Perimeter = 2(w + h) = ${dec(2 * (w + h))}`, `Diagonal = √(w² + h²) = ${dec(Math.sqrt(w * w + h * h))}`]);
+  }
+  if(s === 'triangle'){
+    if(has(0) && has(2) && has(3)){
+      const b = pos(v[0]), a = pos(v[2]), c = pos(v[3]);
+      if(a + c <= b || a + b <= c || b + c <= a) throw new Error('These three sides cannot form a triangle (the sum of two sides must exceed the third).');
+      const sp = (a + b + c) / 2, area = Math.sqrt(sp * (sp - a) * (sp - b) * (sp - c));
+      const x = (a * a - c * c + b * b) / (2 * b), y = Math.sqrt(Math.max(0, a * a - x * x));
+      drawFit('geoCanvas', [[0, 0], [b, 0], [x, y]], true, { kind: 'tri', fx: x, fy: y, b, hgt: y });
+      return showCard('geoResults', '✅ Triangle (three sides)', [`Step 1: s = (a + b + c) / 2 = ${dec(sp)}`, `Step 2: Heron's area = √(s(s−a)(s−b)(s−c)) = ${dec(area)}`, `Height on base b = 2A / b = ${dec(2 * area / b)}`, `Perimeter = a + b + c = ${dec(a + b + c)}`]);
+    }
+    if(has(0) && has(1)){
+      const b = pos(v[0]), hh = pos(v[1]), area = b * hh / 2;
+      drawFit('geoCanvas', [[0, 0], [b, 0], [b / 2, hh]], true, { kind: 'tri', fx: b / 2, fy: hh, b, hgt: hh });
+      const lines = [`Area = ½ × b × h = ${dec(area)}`];
+      if(has(2) && has(3)) lines.push(`Perimeter = a + b + c = ${dec(v[2] + b + v[3])}`);
+      else lines.push('Add sides a and c to also get the perimeter.');
+      return showCard('geoResults', '✅ Triangle (base & height)', lines);
+    }
+    throw new Error('Enter base b and height h, or all three sides (a, b, c).');
+  }
+  if(s === 'coord'){
+    if(![0, 1, 2, 3].every(has)) throw new Error('Enter all four coordinates x₁, y₁, x₂, y₂.');
+    const [x1, y1, x2, y2] = v, dx = x2 - x1, dy = y2 - y1, d = Math.hypot(dx, dy);
+    drawFit('geoCanvas', [[x1, y1], [x2, y2]], false, { kind: 'coord', labels: [[x1, y1, `(${dec(x1)}, ${dec(y1)})`], [x2, y2, `(${dec(x2)}, ${dec(y2)})`]] });
+    const lines = [`Distance = √((x₂−x₁)² + (y₂−y₁)²) = ${dec(d)}`, `Midpoint = (${dec((x1 + x2) / 2)}, ${dec((y1 + y2) / 2)})`];
+    if(dx === 0) lines.push('Slope: undefined (vertical line x = ' + dec(x1) + ')');
+    else { const m = dy / dx, c0 = y1 - m * x1; lines.push(`Slope m = ${dec(m)}`, `Line: y = ${dec(m)}x ${c0 < 0 ? '−' : '+'} ${dec(Math.abs(c0))}`); }
+    return showCard('geoResults', '✅ Coordinate geometry', lines);
+  }
+}
+$('#geoShape').addEventListener('change', renderGeoInputs);
+$('#geoCalcBtn').onclick = () => safe('geoResults', solveGeo);
+renderGeoInputs();
+
+// ---------- UNIT CONVERTER ----------
+const UNITS = {
+  Length: { u: { m: 1, km: 1000, cm: 0.01, mm: 0.001, in: 0.0254, ft: 0.3048, yd: 0.9144, mi: 1609.344 } },
+  Mass: { u: { kg: 1, g: 0.001, mg: 1e-6, t: 1000, lb: 0.45359237, oz: 0.028349523125 } },
+  Area: { u: { 'm²': 1, 'km²': 1e6, 'cm²': 1e-4, 'ft²': 0.09290304, 'in²': 0.00064516, acre: 4046.8564224, ha: 10000 } },
+  Volume: { u: { 'm³': 1, L: 0.001, mL: 1e-6, 'cm³': 1e-6, 'gal (US)': 0.003785411784, 'ft³': 0.028316846592 } },
+  Speed: { u: { 'm/s': 1, 'km/h': 1 / 3.6, mph: 0.44704, knot: 0.514444 } },
+  Time: { u: { s: 1, min: 60, h: 3600, day: 86400, week: 604800, year: 31557600 } },
+  Data: { u: { bit: 0.125, B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 } },
+  Temperature: { temp: true, u: { '°C': 1, '°F': 1, K: 1 } }
+};
+function setOptions(sel, items, selected){
+  sel.innerHTML = items.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('');
+  if(selected) sel.value = selected;
+  const prev = sel.previousElementSibling;
+  if(prev && prev.classList && prev.classList.contains('custom-select-trigger')) prev.remove();
+  sel.dataset.customized = '';
+  setupGlassSelects();
+}
+function convFill(){
+  const keys = Object.keys(UNITS[$('#cc').value].u);
+  setOptions($('#cf'), keys.map(k => [k, k]), keys[0]);
+  setOptions($('#ct'), keys.map(k => [k, k]), keys[1] || keys[0]);
+}
+function convCompute(){
+  const out = $('#cr'), steps = document.getElementById('convSteps');
+  const cat = UNITS[$('#cc').value], from = $('#cf').value, to = $('#ct').value;
+  const v = parseNum($('#cv').value);
+  if(!Number.isFinite(v)){ out.textContent = 'Enter a number to convert'; if(steps) steps.textContent = ''; return; }
+  let res, lines;
+  if(cat.temp){
+    const toC = { '°C': x => x, '°F': x => (x - 32) * 5 / 9, K: x => x - 273.15 };
+    const fromC = { '°C': x => x, '°F': x => x * 9 / 5 + 32, K: x => x + 273.15 };
+    const c = toC[from](v); res = fromC[to](c);
+    lines = [`Step 1: ${from} → Celsius: ${dec(c)} °C`, `Step 2: Celsius → ${to}: ${dec(res)} ${to}`];
+  } else {
+    const base = v * cat.u[from]; res = base / cat.u[to];
+    lines = [`Step 1: ${dec(v)} ${from} × ${dec(cat.u[from])} = ${dec(base)} (base unit)`, `Step 2: ${dec(base)} ÷ ${dec(cat.u[to])} = ${dec(res)} ${to}`];
+  }
+  out.textContent = `${dec(v)} ${from} = ${dec(res)} ${to}`;
+  if(steps) steps.textContent = lines.join('\n');
+}
+(function convInit(){
+  setOptions($('#cc'), Object.keys(UNITS).map(k => [k, k]), 'Length');
+  convFill();
+  const out = $('#cr');
+  if(!document.getElementById('convSteps')){
+    const d = document.createElement('div'); d.id = 'convSteps'; d.className = 'sub'; d.style.whiteSpace = 'pre-wrap'; d.style.marginTop = '8px';
+    out.parentNode.appendChild(d);
+  }
+  $('#cc').addEventListener('change', () => { convFill(); convCompute(); });
+  $('#cf').addEventListener('change', convCompute);
+  $('#ct').addEventListener('change', convCompute);
+  $('#cv').addEventListener('input', convCompute);
+  convCompute();
+})();
+
+// ---------- MATRIX · PROPERTIES & STEP-BY-STEP ----------
+let matMode = 'calc';
+$('#mseg').onclick = e => {
+  const b = e.target.closest('[data-mm]'); if(!b) return;
+  matMode = b.dataset.mm;
+  $$('#mseg button').forEach(x => x.classList.toggle('on', x === b));
+};
+function rrefSteps(M, pivLimit){
+  const A = M.map(r => r.slice()), n = A.length, m = A[0].length, steps = [];
+  let r = 0;
+  for(let c = 0; c < Math.min(m, pivLimit) && r < n; c++){
+    let p = r;
+    for(let i = r + 1; i < n; i++) if(Math.abs(A[i][c]) > Math.abs(A[p][c])) p = i;
+    if(Math.abs(A[p][c]) < 1e-12) continue;
+    if(p !== r){ [A[p], A[r]] = [A[r], A[p]]; steps.push(`Swap R${r + 1} ↔ R${p + 1}`, matText(A)); }
+    const pv = A[r][c];
+    if(Math.abs(pv - 1) > 1e-12){ A[r] = A[r].map(v => v / pv); steps.push(`R${r + 1} ← R${r + 1} / ${dec(pv)}`, matText(A)); }
+    for(let i = 0; i < n; i++) if(i !== r && Math.abs(A[i][c]) > 1e-12){
+      const f = A[i][c]; A[i] = A[i].map((v, j) => v - f * A[r][j]);
+      steps.push(`R${i + 1} ← R${i + 1} − (${dec(f)})·R${r + 1}`, matText(A));
+    }
+    r++;
+  }
+  return { R: A, rank: r, steps };
+}
+function matProps(){
+  const n = +$('#mSize').value, A = readMat('A', n);
+  const T = A.map((row, i) => row.map((_, j) => A[j][i]));
+  const tr = A.reduce((s, row, i) => s + row[i], 0), d = detOf(A);
+  const rk = rrefSteps(A, n).rank;
+  const sym = A.every((row, i) => row.every((v, j) => Math.abs(v - A[j][i]) < 1e-12));
+  showCard('mres', '✅ Matrix properties', [
+    'Matrix A:\n' + matText(A),
+    'Transpose Aᵀ:\n' + matText(T),
+    `Trace = sum of diagonal = ${dec(tr)}`,
+    `Determinant = ${dec(d)}`,
+    `Rank = ${rk}`,
+    `Symmetric? ${sym ? 'Yes' : 'No'}`,
+    `Invertible? ${Math.abs(d) < 1e-12 ? 'No (det = 0)' : 'Yes (det ≠ 0)'}`
+  ]);
+}
+function matStepByStep(){
+  const n = +$('#mSize').value, A = readMat('A', n);
+  const M = A.map((row, i) => [...row, ...row.map((_, j) => (i === j ? 1 : 0))]);
+  const { R, rank, steps } = rrefSteps(M, n);
+  const left = R.map(row => row.slice(0, n));
+  const isI = left.every((row, i) => row.every((v, j) => Math.abs(v - (i === j ? 1 : 0)) < 1e-9));
+  const lines = ['Step 0: Augment [A | I]\n' + matText(M), ...steps];
+  if(isI) lines.push('✅ Left side is I, so the right side is the inverse:\n' + matText(R.map(row => row.slice(n))));
+  else lines.push(`⚠️ Left side is not I (rank ${rank}), so A has no inverse.`);
+  showCard('mres', '✅ Step-by-step (Gauss–Jordan)', lines);
+}
+$('#mrun').onclick = () => safe('mres', () => {
+  if(matMode === 'prop') matProps();
+  else if(matMode === 'solve') matStepByStep();
+  else solveMatrix();
+});
+
+// ---------- GRAPH & GEOMETRY CANVAS REDRAW ON TAB OPEN ----------
+$('#tabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-m]'); if(!b) return;
+  requestAnimationFrame(() => {
+    if(b.dataset.m === 'graph') gDraw();
+    if(b.dataset.m === 'conv') convCompute();
+  });
+});
+window.addEventListener('resize', () => gDraw());
+gDraw();
+
+applyTheme(+(localStorage.getItem('ur_theme') || 0));
+renderTabs('all');
+renderKeypad();
+sw('calc');
+</script>
+</body>
+</html>
