@@ -1,8 +1,7 @@
 // api/chat.js — Vercel Serverless Function for UR AI (ApexCalc AI)
-// The secret key is read from the Vercel Environment Variable GEMINI_API_KEY.
-// It is never sent to the browser.
+// Enterprise Professional Master Edition with Full Voice & Image Support
 
-const MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 
 const SYSTEM_PROMPT = `You are UR AI, a friendly math and science tutor inside the ApexCalc AI calculator app.
 Reply in clear, simple language. If the user writes in Roman Urdu or Hinglish, reply in the same style.
@@ -11,10 +10,12 @@ Keep answers concise and well formatted with plain text math.
 If the user asks for a quiz and asks for JSON, reply with only the JSON, nothing else.`;
 
 module.exports = async function handler(req, res) {
+  // 1. Strict Method Security Validation
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
   }
 
+  // 2. Verify API Key Presence
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(500).json({
@@ -22,7 +23,7 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  // Vercel parses JSON bodies automatically; handle a raw string just in case
+  // 3. Safe Body Parsing (Handles JSON or raw strings)
   let body = req.body;
   if (typeof body === 'string') {
     try { body = JSON.parse(body); } catch (e) { body = {}; }
@@ -30,14 +31,14 @@ module.exports = async function handler(req, res) {
   body = body || {};
 
   const message = typeof body.message === 'string' ? body.message.slice(0, 4000) : '';
-  const image = typeof body.image === 'string' ? body.image : null;
+  const media = typeof body.image === 'string' ? body.image : (typeof body.audio === 'string' ? body.audio : null);
   const history = Array.isArray(body.history) ? body.history.slice(-10) : [];
 
-  if (!message && !image) {
-    return res.status(400).json({ error: 'Empty message' });
+  if (!message && !media) {
+    return res.status(400).json({ error: 'Empty message or attachment' });
   }
 
-  // Build conversation history for Gemini (roles must be "user" or "model")
+  // 4. Build Conversation History Array for Gemini
   const contents = [];
   for (const h of history) {
     if (!h || typeof h.text !== 'string' || !h.text.trim()) continue;
@@ -47,18 +48,28 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  // Current turn: optional photo (data URL) + text
+  // 5. Current Turn: Handle Optional Media (Images or Voice/Audio Data URLs) + Text
   const parts = [];
-  if (image) {
-    const m = image.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-    if (m) parts.push({ inline_data: { mime_type: m[1], data: m[2] } });
+  if (media) {
+    // Supports data URIs for images (image/png, image/jpeg, etc.) and audio (audio/wav, audio/mp3, audio/webm, etc.)
+    const mediaMatch = media.match(/^data:((?:image|audio)\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+    if (mediaMatch) {
+      parts.push({
+        inline_data: {
+          mime_type: mediaMatch[1],
+          data: mediaMatch[2]
+        }
+      });
+    }
   }
-  parts.push({ text: message || 'Solve the problem in this photo step by step.' });
+  
+  parts.push({ text: message || 'Analyze the attached voice or image input step by step.' });
   contents.push({ role: 'user', parts });
 
-  // Gemini expects the conversation to start with a user turn
+  // Ensure conversation starts strictly with a user role turn
   while (contents.length && contents[0].role !== 'user') contents.shift();
 
+  // 6. Execute Secure Upstream Fetch to Google Gemini API
   try {
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
@@ -72,7 +83,6 @@ module.exports = async function handler(req, res) {
           systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
           generationConfig: {
-            temperature: 0.4,
             maxOutputTokens: 1024
           }
         })
@@ -83,7 +93,7 @@ module.exports = async function handler(req, res) {
 
     if (!geminiRes.ok) {
       return res.status(geminiRes.status).json({
-        error: (data && data.error && data.error.message) || 'Gemini API error'
+        error: (data && data.error && data.error.message) || 'Gemini API upstream error'
       });
     }
 
@@ -94,12 +104,13 @@ module.exports = async function handler(req, res) {
       .trim();
 
     if (!reply) {
-      return res.status(502).json({ error: 'Empty response from Gemini' });
+      return res.status(502).json({ error: 'Empty response text received from Gemini' });
     }
 
     return res.status(200).json({ reply });
   } catch (err) {
-    return res.status(500).json({ error: 'Server error: ' + err.message });
+    return res.status(500).json({ error: 'Server runtime execution error: ' + err.message });
   }
 };
+
 
