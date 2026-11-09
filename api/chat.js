@@ -2,7 +2,7 @@
 // The secret key is read from the Vercel Environment Variable GEMINI_API_KEY.
 // It is never sent to the browser.
 
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
 
 const SYSTEM_PROMPT = `You are UR AI, a friendly math and science tutor inside the ApexCalc AI calculator app.
 Reply in clear, simple language. If the user writes in Roman Urdu or Hinglish, reply in the same style.
@@ -104,3 +104,4 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Server error: ' + err.message });
   }
 };
+
