@@ -1,7 +1,7 @@
-// api/chat.js — Vercel Serverless Function for UR AI (ApexCalc AI)
+// /api/chat.js — Vercel Serverless Function for UR AI (ApexCalc AI)
 // Enterprise Professional Master Edition with Full Voice & Image Support
 
-const MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 
 const SYSTEM_PROMPT = `You are UR AI, a friendly math and science tutor inside the ApexCalc AI calculator app.
 Reply in clear, simple language. If the user writes in Roman Urdu or Hinglish, reply in the same style.
@@ -9,7 +9,7 @@ Show step-by-step working for calculations and solve problems accurately.
 Keep answers concise and well formatted with plain text math.
 If the user asks for a quiz and asks for JSON, reply with only the JSON, nothing else.`;
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // 1. Strict Method Security Validation
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed. Use POST.' });
@@ -51,7 +51,6 @@ module.exports = async function handler(req, res) {
   // 5. Current Turn: Handle Optional Media (Images or Voice/Audio Data URLs) + Text
   const parts = [];
   if (media) {
-    // Supports data URIs for images (image/png, image/jpeg, etc.) and audio (audio/wav, audio/mp3, audio/webm, etc.)
     const mediaMatch = media.match(/^data:((?:image|audio)\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
     if (mediaMatch) {
       parts.push({
@@ -72,15 +71,14 @@ module.exports = async function handler(req, res) {
   // 6. Execute Secure Upstream Fetch to Google Gemini API
   try {
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
           generationConfig: {
             maxOutputTokens: 1024
@@ -111,6 +109,4 @@ module.exports = async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: 'Server runtime execution error: ' + err.message });
   }
-};
-
-
+}
